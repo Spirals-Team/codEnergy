@@ -1,2 +1,0 @@
-gem install jekyll
-jekyll build
