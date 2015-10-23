@@ -1,0 +1,11 @@
+# Site settings
+title: codEnergy website
+description: > 
+  This website regroups all charts created to represent the energy consumption
+  distribution for a large set of softwares that has been instrumented.
+baseurl: ""
+
+# Build settings
+markdown: kramdown
+
+charts_dir: charts
