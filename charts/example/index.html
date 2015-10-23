@@ -11,7 +11,7 @@
     <meta name="description" content="This website regroups all charts created to represent the energy consumption distribution for a large set of softwares that has been instrumented.
 ">
 
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="codEnergy/css/style.css">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -23,23 +23,23 @@
 
   <body>
 
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="/">codEnergy</a>
-    </div>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="codEnergy/">codEnergy</a>
+        </div>
 
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        
-        <li  class="active"><a href="/charts/example">Charts</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            
+            <li  class="active"><a href="/codEnergycharts/example">Charts</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
 
     <div class="container-fluid">
@@ -53,7 +53,7 @@
               <div class="col-sm-9">
                 <select class="form-control" onchange="if (this.value) window.location.href=this.value">
                   
-                  <option  selected  value="/charts/example">example</option>
+                  <option  selected  value="/codEnergycharts/example">example</option>
                   
                 </select>
               </div>
@@ -71,18 +71,18 @@
 
     <!-- Put the footer here -->
 
-    <script type="text/javascript" src="/js/jquery-1.11.3.min.js"></script>
-    <script type="text/javascript" src="/js/d3.min.js"></script>
-    <script type="text/javascript" src="/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/js/chroma.js"></script>
-    <script type="text/javascript" src="/js/chroma.palette-gen.js"></script>
-    <script type="text/javascript" src="/js/textures.min.js"></script>
+    <script type="text/javascript" src="codEnergy/js/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="codEnergy/js/d3.min.js"></script>
+    <script type="text/javascript" src="codEnergy/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="codEnergy/js/chroma.js"></script>
+    <script type="text/javascript" src="codEnergy/js/chroma.palette-gen.js"></script>
+    <script type="text/javascript" src="codEnergy/js/textures.min.js"></script>
 
     <script type="text/javascript">
       var json = {"children":[{"children":[{"children":[{"name":"c","selfDuration":3999999999,"nbOfCalls":2,"selfEnergy":150938.22881544658,"totalDuration":83500000000,"totalEnergy":4320761.724283493},{"name":"self","selfDuration":7998813872,"selfEnergy":247830.96009710288,"totalDuration":83500000000,"totalEnergy":4320761.724283493}],"name":"b","selfDuration":7998813872,"nbOfCalls":2,"selfEnergy":247830.96009710288,"totalDuration":83500000000,"totalEnergy":4320761.724283493},{"name":"self","selfDuration":2000466830,"selfEnergy":64545.68696542768,"totalDuration":83500000000,"totalEnergy":4320761.724283493}],"name":"a","selfDuration":2000466830,"nbOfCalls":2,"selfEnergy":64545.68696542768,"totalDuration":83500000000,"totalEnergy":4320761.724283493},{"children":[{"name":"c","selfDuration":3999999992,"nbOfCalls":2,"selfEnergy":132855.55466290514,"totalDuration":83500000000,"totalEnergy":4320761.724283493},{"name":"self","selfDuration":8000000006,"selfEnergy":248634.7730653155,"totalDuration":83500000000,"totalEnergy":4320761.724283493}],"name":"b","selfDuration":8000000006,"nbOfCalls":2,"selfEnergy":248634.7730653155,"totalDuration":83500000000,"totalEnergy":4320761.724283493},{"name":"c","selfDuration":1999999996,"nbOfCalls":1,"selfEnergy":67330.26433072476,"totalDuration":83500000000,"totalEnergy":4320761.724283493},{"children":[{"children":[{"children":[{"children":[{"children":[{"children":[{"children":[{"name":"c","selfDuration":1500719294,"nbOfCalls":1,"selfEnergy":52081.239916661536,"totalDuration":83500000000,"totalEnergy":4320761.724283493},{"name":"self","selfDuration":3999998302,"selfEnergy":124783.12058116203,"totalDuration":83500000000,"totalEnergy":4320761.724283493}],"name":"b","selfDuration":3999998302,"nbOfCalls":1,"selfEnergy":124783.12058116203,"totalDuration":83500000000,"totalEnergy":4320761.724283493},{"name":"self","selfDuration":3,"selfEnergy":0.03163660519983193,"totalDuration":83500000000,"totalEnergy":4320761.724283493}],"name":"d","selfDuration":3,"nbOfCalls":1,"selfEnergy":0.03163660519983193,"totalDuration":83500000000,"totalEnergy":4320761.724283493},{"name":"self","selfDuration":9999999698,"selfEnergy":624965.9525885546,"totalDuration":83500000000,"totalEnergy":4320761.724283493}],"name":"d","selfDuration":9999999698,"nbOfCalls":1,"selfEnergy":624965.9525885546,"totalDuration":83500000000,"totalEnergy":4320761.724283493},{"name":"self","selfDuration":9999998911,"selfEnergy":636236.2488190727,"totalDuration":83500000000,"totalEnergy":4320761.724283493}],"name":"d","selfDuration":9999998911,"nbOfCalls":1,"selfEnergy":636236.2488190727,"totalDuration":83500000000,"totalEnergy":4320761.724283493},{"name":"self","selfDuration":10000000688,"selfEnergy":651536.8560135652,"totalDuration":83500000000,"totalEnergy":4320761.724283493}],"name":"d","selfDuration":10000000688,"nbOfCalls":1,"selfEnergy":651536.8560135652,"totalDuration":83500000000,"totalEnergy":4320761.724283493},{"name":"self","selfDuration":10000000223,"selfEnergy":663651.8383713928,"totalDuration":83500000000,"totalEnergy":4320761.724283493}],"name":"d","selfDuration":10000000223,"nbOfCalls":1,"selfEnergy":663651.8383713928,"totalDuration":83500000000,"totalEnergy":4320761.724283493},{"name":"self","selfDuration":10000002169,"selfEnergy":655370.9682150722,"totalDuration":83500000000,"totalEnergy":4320761.724283493}],"name":"d","selfDuration":10000002169,"nbOfCalls":1,"selfEnergy":655370.9682150722,"totalDuration":83500000000,"totalEnergy":4320761.724283493},{"name":"self","selfDuration":17,"selfEnergy":0.00020448370429778742,"totalDuration":83500000000,"totalEnergy":4320761.724283493}],"name":"main","selfDuration":17,"nbOfCalls":1,"selfEnergy":0.00020448370429778742,"totalDuration":83500000000,"totalEnergy":4320761.724283493}
     </script>
 
-    <script type="text/javascript" src="/js/sunburst-energy-consumption.js"></script>
+    <script type="text/javascript" src="codEnergy/js/sunburst-energy-consumption.js"></script>
 
 
   </body>
