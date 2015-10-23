@@ -1,0 +1,17 @@
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="{{ '/' | prepend: site.baseurl }}">codEnergy</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            {% assign first = site.data.first[0] %}
+            <li {% if page.url contains site.charts_dir %} class="active"{% endif %}><a href="{{ site.baseurl | append: '/' | append: site.charts_dir | append: '/' | append: first }}">Charts</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
