@@ -1,4 +1,4 @@
-python -m pip install Pygments
+sudo python -m pip install Pygments
 
 gem install jekyll
 jekyll build
