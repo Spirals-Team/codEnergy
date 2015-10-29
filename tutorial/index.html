@@ -55,15 +55,111 @@
 <hr />
 <p>The code below (<code>trace.c</code>) will be linked to the targeted program in order to instrument it and get runtime information.</p>
 
-<p>Liquid error: pygments</p>
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="lineno"> 1</span> <span class="cp">#include &lt;stdio.h&gt;</span>
+<span class="lineno"> 2</span> <span class="cp">#include &lt;unistd.h&gt;</span>
+<span class="lineno"> 3</span> <span class="cp">#include &lt;sys/types.h&gt;</span>
+<span class="lineno"> 4</span> <span class="cp">#include &lt;time.h&gt;</span>
+<span class="lineno"> 5</span> 
+<span class="lineno"> 6</span> <span class="k">static</span> <span class="kt">FILE</span> <span class="o">*</span><span class="n">trace</span><span class="p">;</span>
+<span class="lineno"> 7</span> 
+<span class="lineno"> 8</span> <span class="kt">long</span> <span class="kt">long</span> <span class="nf">current_timestamp</span><span class="p">()</span> <span class="p">{</span>
+<span class="lineno"> 9</span>   <span class="k">struct</span> <span class="n">timespec</span> <span class="n">ts</span><span class="p">;</span>
+<span class="lineno">10</span>   <span class="n">clock_gettime</span><span class="p">(</span><span class="n">CLOCK_MONOTONIC_RAW</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ts</span><span class="p">);</span>
+<span class="lineno">11</span>   <span class="k">return</span> <span class="n">ts</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">*</span> <span class="mi">1000000000LL</span> <span class="o">+</span> <span class="n">ts</span><span class="p">.</span><span class="n">tv_nsec</span><span class="p">;</span>
+<span class="lineno">12</span> <span class="p">}</span>
+<span class="lineno">13</span> 
+<span class="lineno">14</span> <span class="kt">void</span> <span class="nf">__attribute__</span> <span class="p">((</span><span class="n">constructor</span><span class="p">))</span> <span class="n">trace_begin</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno">15</span>   <span class="kt">char</span> <span class="n">filename</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
+<span class="lineno">16</span>   <span class="n">snprintf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="s">&quot;trace_%d.txt&quot;</span><span class="p">,</span> <span class="n">getpid</span><span class="p">());</span>
+<span class="lineno">17</span>   <span class="n">trace</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">);</span>
+<span class="lineno">18</span> <span class="p">}</span>
+<span class="lineno">19</span> 
+<span class="lineno">20</span> <span class="kt">void</span> <span class="nf">__attribute__</span> <span class="p">((</span><span class="n">destructor</span><span class="p">))</span> <span class="n">trace_end</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno">21</span>   <span class="n">fclose</span><span class="p">(</span><span class="n">trace</span><span class="p">);</span>
+<span class="lineno">22</span> <span class="p">}</span>
+<span class="lineno">23</span> 
+<span class="lineno">24</span> <span class="kt">void</span> <span class="nf">__cyg_profile_func_enter</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">func</span><span class="p">,</span>  <span class="kt">void</span> <span class="o">*</span><span class="n">caller</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno">25</span>   <span class="n">fprintf</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="s">&quot;e %p %p %lld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">caller</span><span class="p">,</span> <span class="n">current_timestamp</span><span class="p">());</span>
+<span class="lineno">26</span> <span class="p">}</span>
+<span class="lineno">27</span> 
+<span class="lineno">28</span> <span class="kt">void</span> <span class="nf">__cyg_profile_func_exit</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">func</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">caller</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno">29</span>   <span class="n">fprintf</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="s">&quot;x %p %p %lld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">caller</span><span class="p">,</span> <span class="n">current_timestamp</span><span class="p">());</span>
+<span class="lineno">30</span> <span class="p">}</span></code></pre></figure>
 
 <p>We will use here this program (<code>example.c</code>), with classic and recursive calls.</p>
 
-<p>Liquid error: pygments</p>
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="lineno"> 1</span> <span class="cp">#include &lt;stdlib.h&gt;</span>
+<span class="lineno"> 2</span> <span class="cp">#include &lt;math.h&gt;</span>
+<span class="lineno"> 3</span> <span class="cp">#include &lt;time.h&gt;</span>
+<span class="lineno"> 4</span> <span class="cp">#include &lt;stdio.h&gt;</span>
+<span class="lineno"> 5</span> 
+<span class="lineno"> 6</span> <span class="kt">void</span> <span class="nf">c</span><span class="p">()</span> <span class="p">{</span>
+<span class="lineno"> 7</span>   <span class="kt">time_t</span> <span class="n">beg</span><span class="p">,</span> <span class="n">end</span><span class="p">;</span>
+<span class="lineno"> 8</span>   <span class="n">beg</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="lineno"> 9</span>   <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="lineno">10</span> 
+<span class="lineno">11</span>   <span class="k">while</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">beg</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno">12</span>     <span class="n">sqrt</span><span class="p">(</span><span class="n">rand</span><span class="p">());</span>
+<span class="lineno">13</span>     <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="lineno">14</span>   <span class="p">}</span>
+<span class="lineno">15</span> <span class="p">}</span>
+<span class="lineno">16</span> 
+<span class="lineno">17</span> <span class="kt">void</span> <span class="nf">b</span><span class="p">()</span> <span class="p">{</span>
+<span class="lineno">18</span>   <span class="kt">time_t</span> <span class="n">beg</span><span class="p">,</span> <span class="n">end</span><span class="p">;</span>
+<span class="lineno">19</span>   <span class="n">beg</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="lineno">20</span>   <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="lineno">21</span> 
+<span class="lineno">22</span>   <span class="k">while</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">beg</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno">23</span>     <span class="n">sqrt</span><span class="p">(</span><span class="n">rand</span><span class="p">());</span>
+<span class="lineno">24</span>     <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="lineno">25</span>   <span class="p">}</span>
+<span class="lineno">26</span> 
+<span class="lineno">27</span>   <span class="n">c</span><span class="p">();</span>
+<span class="lineno">28</span> <span class="p">}</span>
+<span class="lineno">29</span> 
+<span class="lineno">30</span> <span class="kt">void</span> <span class="nf">a</span><span class="p">()</span> <span class="p">{</span>
+<span class="lineno">31</span>   <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="lineno">32</span>   <span class="k">while</span><span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="mi">100000000</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno">33</span>     <span class="n">sqrt</span><span class="p">(</span><span class="n">rand</span><span class="p">());</span>
+<span class="lineno">34</span>     <span class="n">i</span><span class="o">++</span><span class="p">;</span>
+<span class="lineno">35</span>   <span class="p">}</span>
+<span class="lineno">36</span> 
+<span class="lineno">37</span>   <span class="n">b</span><span class="p">();</span>
+<span class="lineno">38</span> <span class="p">}</span>
+<span class="lineno">39</span> 
+<span class="lineno">40</span> <span class="kt">void</span> <span class="nf">d</span><span class="p">(</span><span class="kt">int</span> <span class="n">call</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno">41</span>   <span class="kt">time_t</span> <span class="n">beg</span><span class="p">,</span> <span class="n">end</span><span class="p">;</span>
+<span class="lineno">42</span>   <span class="n">beg</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="lineno">43</span>   <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="lineno">44</span> 
+<span class="lineno">45</span>   <span class="k">if</span><span class="p">(</span><span class="n">call</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno">46</span>      <span class="n">b</span><span class="p">();</span>
+<span class="lineno">47</span>   <span class="p">}</span>
+<span class="lineno">48</span> 
+<span class="lineno">49</span>   <span class="k">else</span> <span class="p">{</span>
+<span class="lineno">50</span>     <span class="k">while</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">beg</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno">51</span>       <span class="n">printf</span><span class="p">(</span><span class="s">&quot;loop</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="lineno">52</span>       <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="lineno">53</span>     <span class="p">}</span>
+<span class="lineno">54</span> 
+<span class="lineno">55</span>     <span class="n">d</span><span class="p">(</span><span class="n">call</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+<span class="lineno">56</span>   <span class="p">}</span>
+<span class="lineno">57</span> <span class="p">}</span>
+<span class="lineno">58</span> 
+<span class="lineno">59</span> <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+<span class="lineno">60</span>   <span class="n">a</span><span class="p">();</span>
+<span class="lineno">61</span>   <span class="n">b</span><span class="p">();</span>
+<span class="lineno">62</span>   <span class="n">b</span><span class="p">();</span>
+<span class="lineno">63</span>   <span class="n">c</span><span class="p">();</span>
+<span class="lineno">64</span>   <span class="n">a</span><span class="p">();</span>
+<span class="lineno">65</span>   <span class="n">d</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
+<span class="lineno">66</span>   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="lineno">67</span> <span class="p">}</span></code></pre></figure>
 
 <p>Now, compile the program without forgetting to link the targeted program with the task program.</p>
 
-<p>Liquid error: pygments</p>
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="go">cc -c -Wall -O0 trace.c -o trace.o</span>
+<span class="go">cc -finstrument-functions -c example.c; cc -o example example.o trace.o -lm</span></code></pre></figure>
 
 <p>This executable can now be used with the PowerAPI executable [<a href="/codEnergy/download/powerapi-code-energy-analysis-3.3.tgz" target="_blank">DOWNLOAD</a>].</p>
 
@@ -73,15 +169,25 @@ For more details, check out the <a href="https://github.com/Spirals-Team/powerap
 
 <p>The new parameters to define here have to be:</p>
 
-<p>Liquid error: pygments</p>
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="lineno">1</span> <span class="l-Scalar-Plain">powerapi.code-energy-analysis.workloads = [</span>
+<span class="lineno">2</span>   <span class="l-Scalar-Plain">{ name = &quot;example&quot;, binary-path = &quot;/home/powerapi/example&quot;, script = &quot;scripts/start-example.bash&quot; }</span>
+<span class="lineno">3</span> <span class="l-Scalar-Plain">]</span></code></pre></figure>
 
 <p>Then, create a file <code>scripts/start-example.bash</code> and add:</p>
 
-<p>Liquid error: pygments</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="lineno">1</span> <span class="c">#!/bin/bash</span>
+<span class="lineno">2</span> 
+<span class="lineno">3</span> <span class="c"># This line is required. Don&#39;t edit.</span>
+<span class="lineno">4</span> <span class="nb">cd </span>results/<span class="nv">$1</span>
+<span class="lineno">5</span> 
+<span class="lineno">6</span> <span class="c"># Edit with the correct binary path (should be the same as the one written inside the configuration file)</span>
+<span class="lineno">7</span> /home/powerapi/example
+<span class="lineno">8</span> 
+<span class="lineno">9</span> <span class="nb">exit </span>0</code></pre></figure>
 
 <p>You can now launch the PowerAPI executable by executing:</p>
 
-<p>Liquid error: pygments</p>
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="go">sudo ./bin/powerapi-code-energy-analysis</span></code></pre></figure>
 
 <p>Once PowerAPI has finished, a field should be generated (<code>results/$PROGRAM/$PROGRAM.json</code>).
 Put this file inside the <code>_data</code> folder, and check: <code>http://127.0.0.1/codEnergy/charts/$PROGRAM/</code>.
