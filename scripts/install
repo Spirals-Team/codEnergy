@@ -1,5 +1,4 @@
-sudo apt-get install python2.7
-sudo apt-get install python-pygments
+python -m pip install Pygments
 
 gem install jekyll
 jekyll build
