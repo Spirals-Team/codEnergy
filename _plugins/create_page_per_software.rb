@@ -10,7 +10,7 @@ module Jekyll
       self.process(@name)
       self.read_yaml(File.join(base, '_layouts'), 'software-energy-distribution.html')
 
-      self.data['title'] = "Software energy distribution for #{software}"
+      self.data['title'] = "#{software}"
       self.data['software'] = "#{software}"
     end
   end

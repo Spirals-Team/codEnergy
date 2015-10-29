@@ -9,7 +9,9 @@
 
     <div class="container-fluid">
       <div class="row-fluid">
-        <div id="chart" class="col-md-7"></div>
+        
+        <div id="sunburst" class="col-md-7"></div>
+        
         <div id="info" class="col-md-4">
           <h3 class="text-center">Software Energy Distribution by Function</h3>
           <div class="form-horizontal" style="padding-top: 15px;">
@@ -23,14 +25,20 @@
                 </select>
               </div>
             </div>
-            <div id="context" class="form-group">
+            <div id="context" class="form-group" style="padding: 0;">
               <label class="col-sm-3">Context</label>
               <div class="col-sm-9">
                 <span>main</span>
+                <input name="context-js" type="hidden" value="main">
               </div>
             </div>
           </div>
         </div>
+
+        <div id="cubism" class="col-md-4" style="margin-top: 50px; padding: 0;">
+          <div id="cubism-body"></div>
+        </div>
+
       </div>
     </div>
 

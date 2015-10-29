@@ -1,12 +1,13 @@
 # Site settings
 title: codEnergy website
 description: > 
-  This website regroups all charts created to represent the energy consumption
-  distribution for a large set of softwares that has been instrumented.
+  This website regroups all charts created in order to study the energy distribution of software through methods.
 baseurl: "/codEnergy"
 
 # Build settings
 markdown: kramdown
+
+highlighter: pygments
 
 charts_dir: charts
 
