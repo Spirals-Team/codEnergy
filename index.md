@@ -35,7 +35,7 @@ In order to generate the JSON file, you will have to use [PowerAPI](http://www.p
 PowerAPI is a middleware toolkit for building software-defined power meters.
 Software-defined power meters are configurable software libraries that can estimate the power consumption of software in real-time.
 
-<a href="{{ "/download/powerapi-code-energy-analysis-3.3.tgz" | prepend: site.baseurl }}" target="_blank">A special version</a> was built for this purpose. 
+<a href="https://github.com/Spirals-Team/codEnergy/blob/gh-pages/download/powerapi-code-energy-analysis-3.3.tgz?raw=true" target="_blank">A special version</a> was built for this purpose. 
 Check out our [tutorial](tutorial/) for more details.
 
 <h3>
