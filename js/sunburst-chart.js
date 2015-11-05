@@ -1,9 +1,6 @@
-// json variable define in the html side.
-var sunburstData = json.sunburst
-
-function fullName(node) {
+function fullName(d) {
   var names = [];
-  var current = node;
+  var current = d;
 
   while (current.parent) {
     names.unshift(current.name)
@@ -15,27 +12,41 @@ function fullName(node) {
   return names.join(".");
 }
 
+function rawEnergy(d) {
+  var energy = 0.0;
+
+  if(d.children) {
+    $.each(d.children, function(index, child) {
+      energy += rawEnergy(child);
+    });
+  }
+
+  else energy = d.selfEnergy;
+
+  return energy;
+}
+
 function formatName(d) {
   var str = "<b>{0}</b><br><b>{1} J ({2}% of {3} J)</b>";
-  var name = d.name;
-  var selfEnergy = (d.selfEnergy / 1000).toFixed(2);
-  var percentEnergy = ((d.selfEnergy / d.totalEnergy) * 100).toFixed(2);
-  var totalEnergy = (d.totalEnergy / 1000).toFixed(2);
+  var name = d.name == "self" ? "{1} ({2})".replace("{1}", d.parent.name).replace("{2}", "parent") : d.name;
+  var raw = rawEnergy(d);
+  var percentEnergy = ((raw / d.totalEnergy) * 100);
+  var totalEnergy = d.totalEnergy;
 
   return str.replace("{0}", name)
-    .replace("{1}", selfEnergy)
-    .replace("{2}", percentEnergy)
-    .replace("{3}", totalEnergy);
+    .replace("{1}", (raw / 1000).toFixed(2))
+    .replace("{2}", percentEnergy.toFixed(2))
+    .replace("{3}", (totalEnergy / 1000).toFixed(2));
 }
 
 var width = 800,
     height = 700,
     radius = Math.min(width, height) / 2;
 
-var x = d3.scale.linear()
+var xSunburst = d3.scale.linear()
     .range([0, 2 * Math.PI]);
 
-var y = d3.scale.sqrt()
+var ySunburst = d3.scale.sqrt()
     .range([0, radius]);
 
 var svg = d3.select("#sunburst")
@@ -56,13 +67,13 @@ var tooltip = d3.select("#sunburst")
 var partition = d3.layout.partition().value(function(d) { return d.selfEnergy; });
 
 var arc = d3.svg.arc()
-  .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
-  .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
-  .innerRadius(function(d) { return Math.max(0, y(d.y)); })
-  .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
+  .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, xSunburst(d.x))); })
+  .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, xSunburst(d.x + d.dx))); })
+  .innerRadius(function(d) { return Math.max(0, ySunburst(d.y)); })
+  .outerRadius(function(d) { return Math.max(0, ySunburst(d.y + d.dy)); });
 
-var data = partition.nodes(sunburstData);
-var nbColors = data.length > 100 ? 100 : data.length;
+var sunburstData = partition.nodes(json.sunburst);
+var nbColors = sunburstData.length > 100 ? 100 : sunburstData.length;
 var colorsIWH = paletteGenerator.generate(
   nbColors, // Colors
   function(color){ // This function filters valid colors
@@ -78,7 +89,7 @@ colorsIWH = paletteGenerator.diffSort(colorsIWH).map(function(color){return colo
 var colors = d3.scale.ordinal().range(colorsIWH);
 
 var path = svg.selectAll("path")
-  .data(data)
+  .data(sunburstData)
   .enter()
   .append("path")
   .attr("d", arc)
@@ -98,15 +109,13 @@ var path = svg.selectAll("path")
     }
   })
   .on("mouseover", function(d) {
-    if(d.name != "self") {
-      tooltip.html(function() {
-        return formatName(d);
-      });
-    
-      return tooltip.transition()
-        .duration(50)
-        .style("opacity", 1);
-    }
+    tooltip.html(function() {
+      return formatName(d);
+    });
+  
+    return tooltip.transition()
+      .duration(50)
+      .style("opacity", 1);
   })
   .on("mousemove", function(d) {
     return tooltip
@@ -121,25 +130,15 @@ var path = svg.selectAll("path")
 function arcTween(d) {
   var name = fullName(d);
   d3.select("#context span").text(name);
-  d3.select("input[name=context-js]").attr("value", name);
+  $("input[name=context-js]").attr("value", name).trigger('change');
 
-  // Hide lines in cubism chart (context < current_context)
-  $(".horizon span.title")
-    .filter(function() { return $(this).text().substring(0, name.length) !== name })
-    .each(function() { $(this).parent().css("display", "none") });
-
-  // Display lines in cubism chart (context > current_context)
-    $(".horizon span.title")
-    .filter(function() { return $(this).text().substring(0, name.length) === name })
-    .each(function() { $(this).parent().css("display", "block") });
-
-  var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
-      yd = d3.interpolate(y.domain(), [d.y, 1]),
-      yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
+  var xd = d3.interpolate(xSunburst.domain(), [d.x, d.x + d.dx]),
+      yd = d3.interpolate(ySunburst.domain(), [d.y, 1]),
+      yr = d3.interpolate(ySunburst.range(), [d.y ? 20 : 0, radius]);
   return function(d, i) {
     return i
         ? function(t) { return arc(d); }
-        : function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
+        : function(t) { xSunburst.domain(xd(t)); ySunburst.domain(yd(t)).range(yr(t)); return arc(d); };
   };
 }
 

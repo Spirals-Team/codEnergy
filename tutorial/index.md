@@ -15,6 +15,7 @@ The code below (```trace.c```) will be linked to the targeted program in order t
 #include <unistd.h>
 #include <sys/types.h>
 #include <time.h>
+#include <sys/syscall.h>
 
 static FILE *trace;
 
@@ -22,6 +23,10 @@ long long current_timestamp() {
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
   return ts.tv_sec * 1000000000LL + ts.tv_nsec;
+}
+
+long gettid() {
+  return syscall(SYS_gettid);
 }
 
 void __attribute__ ((constructor)) trace_begin (void) {
@@ -35,16 +40,17 @@ void __attribute__ ((destructor)) trace_end (void) {
 }
 
 void __cyg_profile_func_enter (void *func,  void *caller) {
-  fprintf(trace, "e %p %p %lld\n", func, caller, current_timestamp());
+  fprintf(trace, "%ld e %p %p %lld\n", gettid(), func, caller, current_timestamp());
+
 }
 
 void __cyg_profile_func_exit (void *func, void *caller) {
-  fprintf(trace, "x %p %p %lld\n", func, caller, current_timestamp());
+  fprintf(trace, "%ld x %p %p %lld\n", gettid(), func, caller, current_timestamp());
 }
 
 {% endhighlight %}
 
-We will use here this program (```example.c```), with classic and recursive calls.
+We will use here this program (```example.c```), with 2 additional threads, classic and recursive calls.
 
 {% highlight c linenos %}
 
@@ -52,6 +58,8 @@ We will use here this program (```example.c```), with classic and recursive call
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
+#include <pthread.h>
+#include <string.h>
 
 void c() {
   time_t beg, end;
@@ -106,7 +114,27 @@ void d(int call) {
   }
 }
 
+void *thread_work() {
+  a();
+  b();
+  c();
+}
+
 int main() {
+  pthread_t tid[2];
+  int i = 0;
+  int err;
+
+  while(i < 2) {
+    err = pthread_create(&(tid[i]), NULL, &thread_work, NULL);
+    if(err != 0) {
+      printf("can't create thread :[%s]", strerror(err));
+    }
+    else printf("Thread created successfully\n");
+
+   i++;
+  }
+
   a();
   b();
   b();
@@ -123,7 +151,7 @@ Now, compile the program without forgetting to link the targeted program with th
 {% highlight console %}
 
 cc -c -Wall -O0 trace.c -o trace.o
-cc -finstrument-functions -c example.c; cc -o example example.o trace.o -lm
+cc -finstrument-functions -c example.c; cc -o example example.o trace.o -lm -lpthread
 
 {% endhighlight %}
 
@@ -168,7 +196,8 @@ sudo ./bin/powerapi-code-energy-analysis
 {% endhighlight %}
 
 Once PowerAPI has finished, a field should be generated (```results/$PROGRAM/$PROGRAM.json```).
-Put this file inside the ```_data``` folder, and check: ```http://127.0.0.1/codEnergy/charts/$PROGRAM/```.
-A page corresponding to the energy distribution of your program should be there.
+Put this file inside the ```_data``` folder.
+
+A page corresponding to the energy distribution of your program should be generated and available at this address: ```http://127.0.0.1/codEnergy/charts/$PROGRAM/```.
 
 <br>

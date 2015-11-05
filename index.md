@@ -12,7 +12,7 @@ This website gathers all dynamic charts created to analyze the software energy d
 Our analysis is possible by instrumenting the targeted program.
 It works currently on the software compilable with the ```-finstrument-functions``` option.
 
-Thanks to [d3.js](http://d3js.org/) and [cubism.js](https://square.github.io/cubism/), we built dynamic and adaptive charts on top of javascript.
+Thanks to [d3.js](http://d3js.org/), we built dynamic and adaptive charts on top of javascript.
 
 Two charts are created per software.
 The first one, represented as a sunburst, allows to show the energy distribution through software's methods.
