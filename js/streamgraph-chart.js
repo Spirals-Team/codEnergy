@@ -18,8 +18,8 @@ function update(data) {
     }); 
   });
 
-  var width = 800;
-  var height = 400;
+  var width = $(window).width() - 100;
+  var height = 200;
 
   d3.select("#streamgraph-body svg")
     .attr("width", width)
@@ -64,12 +64,12 @@ function update(data) {
         mousex = mousex[0];
         var index = Math.floor(xStream.invert(mousex));
         var power = "{0} W".replace("{0}", d.values[index].y.toFixed(2));
-        $("#streamgraph .form-horizontal #method span").text(d.key);
-        $("#streamgraph .form-horizontal #power span").text(power);
+        $("#info .form-horizontal #method span").text(d.key);
+        $("#info .form-horizontal #power span").text(power);
       })
       .on("mouseout", function(d, i) {
-        $("#streamgraph .form-horizontal #method span").text("/");
-        $("#streamgraph .form-horizontal #power span").text("/");
+        $("#info .form-horizontal #method span").text("/");
+        $("#info .form-horizontal #power span").text("/");
       });
 }
 
