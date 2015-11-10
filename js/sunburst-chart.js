@@ -39,8 +39,8 @@ function formatName(d) {
     .replace("{3}", (totalEnergy / 1000).toFixed(2));
 }
 
-var width = 800,
-    height = 700,
+var width = 350,
+    height = 250,
     radius = Math.min(width, height) / 2;
 
 var xSunburst = d3.scale.linear()
@@ -119,12 +119,14 @@ var path = svg.selectAll("path")
   })
   .on("mousemove", function(d) {
     return tooltip
-      .style("top", (d3.event.pageY - 65) + "px")
-      .style("left", (d3.event.pageX + 15) + "px");
+      .style("top", (d3.event.offsetY - 15) + "px")
+      .style("left", (d3.event.offsetX + 30) + "px");
   })
   .on("mouseout", function() { 
     return tooltip.style("opacity", 0);
   });
+
+var coor = $("#sunburst g").offset()
 
 // Zooming: interpolate the scales
 function arcTween(d) {

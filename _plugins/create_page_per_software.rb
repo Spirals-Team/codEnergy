@@ -21,6 +21,7 @@ module Jekyll
     def generate(site)
       if site.layouts.key? 'software-energy-distribution'
         dir = site.config['charts_dir'] || 'charts'
+
         site.data.each_key do |software|
           site.pages << ChartPage.new(site, site.source, File.join(dir, software), software)
         end

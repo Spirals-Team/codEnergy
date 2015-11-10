@@ -10,21 +10,21 @@
     <div class="container-fluid">
       <div class="row-fluid">
         
-        <div id="sunburst" class="col-md-7"></div>
-        
-        <div id="info" class="col-md-4">
+        <div id="info" class="col-md-4 col-md-offset-1">
           <h3 class="text-center">Software Energy Distribution by Function</h3>
           <div class="form-horizontal" style="padding-top: 15px;">
+            
             <div id="software" class="form-group">
               <label class="col-sm-3" style="padding-top: 10px;">Software</label>
               <div class="col-sm-9">
                 <select class="form-control" onchange="if (this.value) window.location.href=this.value">
                   {% for entry in site.data %}
-                  <option {% if entry[0] == page.software %} selected {% endif %} value="/{{ site.charts_dir | append: '/' | append: entry[0] | prepend: site.baseurl }}">{{ entry[0] }}</option>
+                  <option {% if entry[0] == page.software %} selected {% endif %} value="{{ site.baseurl | append: '/' | append: site.charts_dir | append: '/' | append: entry[0] }}">{{ entry[0] }}</option>
                   {% endfor %}
                 </select>
               </div>
             </div>
+            
             <div id="context" class="form-group" style="padding: 0;">
               <label class="col-sm-3">Context</label>
               <div class="col-sm-9">
@@ -33,12 +33,11 @@
               </div>
             </div>
           </div>
-        </div>
 
-        <div id="streamgraph" class="col-md-4" style="margin-top: 15px;">
-          <div id="tooltip">
+          <div id="tooltip-streamgraph">
             <span id="power"></span>
           </div>
+
           <div class="form-horizontal" style="padding-top: 15px;">
             <div id="method" class="form-group" style="padding: 0;">
               <label class="col-sm-3">Method</label>
@@ -53,8 +52,13 @@
               </div>
             </div>
           </div>
-          <div id="streamgraph-body" style="overflow: scroll;" >
-          </div>
+
+        </div>
+
+        <div id="sunburst" class="col-md-6"></div>
+
+        <div id="streamgraph" class="col-md-12" style="margin-top: 15px;">
+          <div id="streamgraph-body" style="overflow: scroll;"></div>
         </div>
 
       </div>
