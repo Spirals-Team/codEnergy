@@ -4,3 +4,10 @@
 @import "variables";
 @import "bootstrap";
 @import "bootswatch";
+
+.domain {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}

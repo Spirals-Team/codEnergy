@@ -11,9 +11,12 @@
       <div class="row-fluid">
         
         <div id="info" class="col-md-4 col-md-offset-1">
-          <h3 class="text-center">Software Energy Distribution by Function</h3>
-          <div class="form-horizontal" style="padding-top: 15px;">
-            
+          <h3>Software Energy Distribution by Function</h3>
+          
+          <hr>
+          <hr>
+
+          <div class="form-horizontal">  
             <div id="software" class="form-group">
               <label class="col-sm-3" style="padding-top: 10px;">Software</label>
               <div class="col-sm-9">
@@ -28,17 +31,26 @@
             <div id="context" class="form-group" style="padding: 0;">
               <label class="col-sm-3">Context</label>
               <div class="col-sm-9">
-                <span>main</span>
+                <textarea style="height: 100px ; width: 100% ; resize: none ; word-wrap: break-word;">{{ page.software }}</textarea>
                 <input name="context-js" type="hidden" value="main">
               </div>
             </div>
           </div>
 
-          <div id="tooltip-streamgraph">
-            <span id="power"></span>
-          </div>
+          <hr>
 
-          <div class="form-horizontal" style="padding-top: 15px;">
+          <div class="form-horizontal">
+            <div id="layout" class="form-group" style="padding: 0;">
+              <label class="col-sm-3">Layout</label>
+              <div class="col-sm-9">
+                <select class="form-control">
+                  <option value="silhouette" selected>Silhouette</option>
+                  <option value="wiggle">Wiggle</option>
+                  <option value="expand">Expand</option>
+                  <option value="zero">Zero</option>
+                </select>
+              </div>
+            </div>
             <div id="method" class="form-group" style="padding: 0;">
               <label class="col-sm-3">Method</label>
               <div class="col-sm-9">

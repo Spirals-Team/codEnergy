@@ -9,6 +9,7 @@
   <script type="text/javascript" src="{{ "/js/cubism.v1.min.js" | prepend: site.baseurl }}"></script>
 
   <script type="text/javascript">
+    var software = "{{ page.software }}"
     var json = {{ site.data[page.software] | jsonify }}
   </script>
 

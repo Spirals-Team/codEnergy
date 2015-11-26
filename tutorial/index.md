@@ -40,11 +40,11 @@ long gettid() {
 
 void __cyg_profile_func_enter (void *func,  void *caller) {
   if(is_init == 0) create_trace();
-  fprintf(trace, "%ld e %p %p %lld\n", gettid(), func, caller, current_timestamp());
+  fprintf(trace, "%ld;;e;;%p;;%lld\n", gettid(), func, current_timestamp());
 }
 
 void __cyg_profile_func_exit (void *func, void *caller) {
-  fprintf(trace, "%ld x %p %p %lld\n", gettid(), func, caller, current_timestamp());
+  fprintf(trace, "%ld;;x;;%lld\n", gettid(), current_timestamp());
 }
 
 {% endhighlight %}
