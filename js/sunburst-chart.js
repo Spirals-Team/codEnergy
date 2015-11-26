@@ -1,15 +1,22 @@
 function fullName(d) {
+  var namesToDisplay = [];
   var names = [];
   var current = d;
 
   while (current.parent) {
-    names.unshift(current.name)
+    var firstParenthesis = current.name.indexOf("(");
+    var firstSpace = current.name.indexOf(" ");
+    var start = (firstSpace == -1 || firstSpace >= firstParenthesis) ? 0 : firstSpace + 1;
+    var end = firstParenthesis == -1 ? current.name.length : firstParenthesis;
+    namesToDisplay.unshift(current.name.substring(start, end));
+    names.unshift(current.name);
     current = current.parent;
   }
   
-  names.unshift("main")
+  namesToDisplay.unshift(software)
+  names.unshift(software);
 
-  return names.join(".");
+  return { "nameToDisplay": namesToDisplay.join("."), "name": names.join(".") };
 }
 
 function rawEnergy(d) {
@@ -130,9 +137,9 @@ var coor = $("#sunburst g").offset()
 
 // Zooming: interpolate the scales
 function arcTween(d) {
-  var name = fullName(d);
-  d3.select("#context span").text(name);
-  $("input[name=context-js]").attr("value", name).trigger('change');
+  var names = fullName(d);
+  d3.select("#context textarea").text(names.nameToDisplay);
+  $("input[name=context-js]").attr("value", names.name).trigger('change');
 
   var xd = d3.interpolate(xSunburst.domain(), [d.x, d.x + d.dx]),
       yd = d3.interpolate(ySunburst.domain(), [d.y, 1]),

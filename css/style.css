@@ -5941,3 +5941,9 @@ a.list-group-item-danger.active:hover, a.list-group-item-danger.active:focus {
 
 .popover {
   color: #333333; }
+
+.domain {
+  fill: none;
+  stroke: grey;
+  stroke-width: 1;
+  shape-rendering: crispEdges; }
