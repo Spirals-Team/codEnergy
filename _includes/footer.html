@@ -1,4 +1,37 @@
-    <!-- Put the footer here -->
+    <script type="text/javascript" src="{{ "/js/require.min.js" | prepend: site.baseurl }}"></script>
 
-    <script type="text/javascript" src="{{ "/js/jquery-1.11.3.min.js" | prepend: site.baseurl }}"></script>
-    <script type="text/javascript" src="{{ "/js/bootstrap.min.js" | prepend: site.baseurl }}"></script>
+    <script type="text/javascript">
+      require.config({
+        shim : {
+          d3: {
+            deps: [ 'jquery' ]
+          },
+
+          textures: {
+            deps: [ 'd3' ]
+          },
+
+          chroma: {
+            deps: [ 'd3' ]
+          },
+
+          chromaPalette: {
+            deps: [ 'chroma' ]
+          },
+
+          bootstrap: {
+            deps: [ 'jquery' ]
+          }
+        },
+
+        paths: {
+          config: "{{ "/js/config" | prepend: site.baseurl }}",
+          jquery: "{{ "/js/jquery-1.11.3.min" | prepend: site.baseurl }}",
+          d3: "{{ "/js/d3.min" | prepend: site.baseurl }}",
+          textures: "{{ "/js/textures.min" | prepend: site.baseurl }}",
+          chroma: "{{ "/js/chroma.min" | prepend: site.baseurl }}",
+          chromaPalette: "{{ "/js/chroma.palette-gen" | prepend: site.baseurl }}",
+          bootstrap: "{{ "/js/bootstrap.min" | prepend: site.baseurl }}"
+        }
+      })
+    </script>

@@ -1,14 +1,21 @@
-# Site settings
+# Basic site settings
 title: codEnergy website
-description: > 
-  This website regroups all charts created in order to study the energy distribution of software through methods.
+author: Maxime Colmant
+description: >
+  Studying the software energy distribution over methods
 baseurl: "/codEnergy"
+
+# InfluxDB settings
+influxHost: "spirals-codenergy.lille.inria.fr"
+influxPort: "8086"
+influxDB: "codenergy"
+influxUser: "web"
+influxPwd: "web"
+
+# TypeScript settings
+js_dest: js
 
 # Build settings
 markdown: kramdown
-
 highlighter: pygments
-
-charts_dir: charts
-
 exclude: ['README.md', "LICENSE", ".DS_Store"]

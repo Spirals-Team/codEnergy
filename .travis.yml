@@ -12,7 +12,7 @@ before_script:
 - git config --global user.name 'mcolmant'
 - git config --global user.email 'maxime.colmant@gmail.com'
 
-script: ./scripts/install
+script: ./scripts/install.sh
 
 after_success:
 - mkdir .deploy

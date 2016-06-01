@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+{% include head.html %}
+
+  <body>
+
+{% include header.html %}
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+
+        <div id="info" class="col-md-4">
+          <h3>Software Energy Distribution by Method</h3>
+
+          <hr>
+
+          <div class="form-horizontal">
+            <div id="software" class="form-group">
+              <label class="col-sm-3" style="padding-top: 10px;">Software</label>
+              <div class="col-sm-9">
+                <select class="form-control"></select>
+              </div>
+            </div>
+
+            <div id="run" class="form-group">
+              <label class="col-sm-3" style="padding-top: 10px;">Run</label>
+              <div class="col-sm-9">
+                <select class="form-control"></select>
+              </div>
+            </div>
+
+            <div id="context" class="form-group" style="padding: 0;">
+              <label class="col-sm-3">Context</label>
+              <div class="col-sm-9">
+                <textarea style="height: 100px ; width: 100% ; resize: none ; word-wrap: break-word;">{{ page.software }}</textarea>
+                <input name="context-js" type="hidden" value="">
+              </div>
+            </div>
+          </div>
+
+          <hr>
+
+          <div class="form-horizontal">
+            <div id="layout" class="form-group">
+              <label class="col-sm-3" style="padding-top: 10px;">Layout</label>
+              <div class="col-sm-9">
+                <select class="form-control">
+                  <option value="silhouette" selected>Silhouette</option>
+                  <option value="wiggle">Wiggle</option>
+                  <option value="expand">Expand</option>
+                  <option value="zero">Zero</option>
+                </select>
+              </div>
+            </div>
+            <div id="method" class="form-group">
+              <label class="col-sm-3">Method</label>
+              <div class="col-sm-9">
+                <span>/</span>
+              </div>
+            </div>
+            <div id="power" class="form-group">
+              <label class="col-sm-3">Power</label>
+              <div class="col-sm-9">
+                <span>/</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div id="sunburst" class="col-md-6"></div>
+
+        <div id="legend" class="col-md-2">
+          <h3>Legend</h3>
+
+          <hr>
+
+        </div>
+
+        <div id="downloads" class="col-md-2">
+          <h3>Downloads</h3>
+
+          <hr>
+
+          <a id="sunburst" download>Sunburst</a>
+          <br>
+          <a id="streamgraph" download>Streamgraph</a>
+        </div>
+
+        <div id="streamgraph" class="col-md-12" style="margin-top: 15px;">
+          <div id="streamgraph-body" style="overflow: scroll;"></div>
+        </div>
+
+      </div>
+    </div>
+
+{% include footer.html %}
+
+    <script type="text/javascript" src="{{ "/js/svg.js" | prepend: site.baseurl }}"></script>
+    <script type="text/javascript">
+      define('config', function() {
+        return {
+          influxHost: "{{ site.influxHost }}",
+          influxPort: "{{ site.influxPort }}",
+          influxDB: "{{ site.influxDB }}",
+          influxUser: "{{ site.influxUser }}",
+          influxPwd: "{{ site.influxPwd }}"
+        }
+      })
+    </script>
+
+  </body>
+
+</html>

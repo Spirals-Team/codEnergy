@@ -1,20 +1,18 @@
     {% assign title = page.title | downcase %}
-    {% assign first = site.data.first[0] %}
 
     <nav class="navbar navbar-inverse">
       <div class="container-fluid">
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span>
           </button>
           <a class="navbar-brand" href="{{ '/' | prepend: site.baseurl }}">codEnergy</a>
         </div>
 
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <div class="collapse navbar-collapse" id="navbar">
           <ul class="nav navbar-nav">
-            <li {% if title == 'tutorial' %} class="active"{% endif %}><a href="{{ site.baseurl | append: '/' }}tutorial">Tutorial</a></li>
-            
-            <li {% if page.url contains site.charts_dir %} class="active"{% endif %}><a href="{{ site.baseurl | append: '/' | append: site.charts_dir | append: '/' | append: first }}">Charts</a></li>
+            <li {% if title == 'charts' %} class="active"{% endif %}><a href="{{ site.baseurl | append: '/' }}charts">Charts</a></li>
           </ul>
         </div>
       </div>
