@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Charts</title>
+    <meta name="author" content="Maxime Colmant">
+    <meta name="description" content="Studying the software energy distribution over methods
+">
+
+    <link rel="stylesheet" href="/codEnergy/css/style.css">
+    <link rel="stylesheet" href="/codEnergy/css/pygments.css">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+      <![endif]-->
+  </head>
+
+
+  <body>
+
+    
+
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/codEnergy/">codEnergy</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="navbar">
+          <ul class="nav navbar-nav">
+            <li  class="active"><a href="/codEnergy/charts">Charts</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+
+        <div id="info" class="col-md-4">
+          <h3>Software Energy Distribution by Method</h3>
+
+          <hr>
+
+          <div class="form-horizontal">
+            <div id="software" class="form-group">
+              <label class="col-sm-3" style="padding-top: 10px;">Software</label>
+              <div class="col-sm-9">
+                <select class="form-control"></select>
+              </div>
+            </div>
+
+            <div id="run" class="form-group">
+              <label class="col-sm-3" style="padding-top: 10px;">Run</label>
+              <div class="col-sm-9">
+                <select class="form-control"></select>
+              </div>
+            </div>
+
+            <div id="context" class="form-group" style="padding: 0;">
+              <label class="col-sm-3">Context</label>
+              <div class="col-sm-9">
+                <textarea style="height: 100px ; width: 100% ; resize: none ; word-wrap: break-word;"></textarea>
+                <input name="context-js" type="hidden" value="">
+              </div>
+            </div>
+          </div>
+
+          <hr>
+
+          <div class="form-horizontal">
+            <div id="layout" class="form-group">
+              <label class="col-sm-3" style="padding-top: 10px;">Layout</label>
+              <div class="col-sm-9">
+                <select class="form-control">
+                  <option value="silhouette" selected>Silhouette</option>
+                  <option value="wiggle">Wiggle</option>
+                  <option value="expand">Expand</option>
+                  <option value="zero">Zero</option>
+                </select>
+              </div>
+            </div>
+            <div id="method" class="form-group">
+              <label class="col-sm-3">Method</label>
+              <div class="col-sm-9">
+                <span>/</span>
+              </div>
+            </div>
+            <div id="power" class="form-group">
+              <label class="col-sm-3">Power</label>
+              <div class="col-sm-9">
+                <span>/</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div id="sunburst" class="col-md-6"></div>
+
+        <div id="legend" class="col-md-2">
+          <h3>Legend</h3>
+
+          <hr>
+
+        </div>
+
+        <div id="downloads" class="col-md-2">
+          <h3>Downloads</h3>
+
+          <hr>
+
+          <a id="sunburst" download>Sunburst</a>
+          <br>
+          <a id="streamgraph" download>Streamgraph</a>
+        </div>
+
+        <div id="streamgraph" class="col-md-12" style="margin-top: 15px;">
+          <div id="streamgraph-body" style="overflow: scroll;"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <script type="text/javascript" src="/codEnergy/js/require.min.js"></script>
+
+    <script type="text/javascript">
+      require.config({
+        shim : {
+          d3: {
+            deps: [ 'jquery' ]
+          },
+
+          textures: {
+            deps: [ 'd3' ]
+          },
+
+          chroma: {
+            deps: [ 'd3' ]
+          },
+
+          chromaPalette: {
+            deps: [ 'chroma' ]
+          },
+
+          bootstrap: {
+            deps: [ 'jquery' ]
+          }
+        },
+
+        paths: {
+          config: "/codEnergy/js/config",
+          jquery: "/codEnergy/js/jquery-1.11.3.min",
+          d3: "/codEnergy/js/d3.min",
+          textures: "/codEnergy/js/textures.min",
+          chroma: "/codEnergy/js/chroma.min",
+          chromaPalette: "/codEnergy/js/chroma.palette-gen",
+          bootstrap: "/codEnergy/js/bootstrap.min"
+        }
+      })
+    </script>
+
+
+    <script type="text/javascript" src="/codEnergy/js/svg.js"></script>
+    <script type="text/javascript">
+      define('config', function() {
+        return {
+          influxHost: "spirals-codenergy.lille.inria.fr",
+          influxPort: "8086",
+          influxDB: "codenergy",
+          influxUser: "web",
+          influxPwd: "web"
+        }
+      })
+    </script>
+
+  </body>
+
+</html>

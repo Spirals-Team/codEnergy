@@ -1,5 +1,0 @@
-sudo pip install Pygments
-
-gem install pygments.rb
-gem install jekyll
-jekyll build

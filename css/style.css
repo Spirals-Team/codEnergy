@@ -2862,7 +2862,7 @@ select[multiple].input-lg,
   right: 15px; }
 @media (min-width: 768px) {
   .form-horizontal .form-group-lg .control-label {
-    padding-top: 25.0px;
+    padding-top: 25px;
     font-size: 19px; } }
 @media (min-width: 768px) {
   .form-horizontal .form-group-sm .control-label {
@@ -5941,9 +5941,3 @@ a.list-group-item-danger.active:hover, a.list-group-item-danger.active:focus {
 
 .popover {
   color: #333333; }
-
-.domain {
-  fill: none;
-  stroke: grey;
-  stroke-width: 1;
-  shape-rendering: crispEdges; }
