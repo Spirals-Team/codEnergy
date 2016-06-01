@@ -59,7 +59,7 @@ module Jekyll
 			puts js
 			# execute shell command
 			begin
-				command = "#{@tsc} --target es6 --module commonjs --moduleResolution node --removeComments true --out #{js} #{@tspath}"
+				command = "#{@tsc} --target es5 --module commonjs --moduleResolution node --removeComments true --out #{js} #{@tspath}"
 				`#{command}`
 			end
 		end

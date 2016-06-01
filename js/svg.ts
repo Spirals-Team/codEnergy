@@ -96,6 +96,27 @@ class SVG {
       return { 'pathToDisplay': pathToDisplay.join("."), "path": path.join(".") }
     }
 
+    function getOffset(evt)
+{
+if(evt.offsetX!=undefined)
+return {x:evt.offsetX,y:evt.offsetY};
+
+var el = evt.target;
+var offset = {x:0,y:0};
+
+while(el.offsetParent)
+{
+offset.x+=el.offsetLeft;
+offset.y+=el.offsetTop;
+el = el.offsetParent;
+}
+
+offset.x = evt.pageX - offset.x;
+offset.y = evt.pageY - offset.y;
+
+return offset;
+}
+
     let width = 350, height = 250, radius = Math.min(width, height) / 2
 
     let xSunburst = d3.scale.linear()
@@ -160,8 +181,8 @@ class SVG {
       })
       .on('mousemove', function(d) {
         return tooltip
-          .style('top', `${d3.event.offsetY - 15}px`)
-          .style('left', `${d3.event.offsetX + 30}px`)
+          .style('top', `${d3.event.layerY - 15}px`)
+          .style('left', `${d3.event.layerX + 15}px`)
       })
       .on('mouseout', function() {
         return tooltip.style('opacity', 0)
