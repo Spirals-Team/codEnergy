@@ -56,10 +56,10 @@ var SVG = (function () {
         var sunburstData = partition.nodes(sunburstJson);
         function formatJSObjName(obj) {
             var name = obj.name.startsWith('self') ? obj.parent.name + " [" + obj.name.split('self')[1] + "]" : obj.name;
-            var power = obj.value;
-            var totalPower = sunburstData[0].value;
-            var percent = (power / totalPower) * 100;
-            return "<b>" + name + "</b><br><b>" + power.toFixed(2) + " W (" + percent.toFixed(2) + "% of " + totalPower.toFixed(2) + " W)</b>";
+            var energy = obj.value;
+            var totalEnergy = sunburstData[0].value;
+            var percent = (energy / totalEnergy) * 100;
+            return "<b>" + name + "</b><br><b>" + energy.toFixed(2) + " J (" + percent.toFixed(2) + "% of " + totalEnergy.toFixed(2) + " J)</b>";
         }
         function fullName(obj) {
             var current = obj;
@@ -76,20 +76,6 @@ var SVG = (function () {
             }
             pathToDisplay.unshift(current.name);
             return { 'pathToDisplay': pathToDisplay.join("."), "path": path.join(".") };
-        }
-        function getOffset(evt) {
-            if (evt.offsetX != undefined)
-                return { x: evt.offsetX, y: evt.offsetY };
-            var el = evt.target;
-            var offset = { x: 0, y: 0 };
-            while (el.offsetParent) {
-                offset.x += el.offsetLeft;
-                offset.y += el.offsetTop;
-                el = el.offsetParent;
-            }
-            offset.x = evt.pageX - offset.x;
-            offset.y = evt.pageY - offset.y;
-            return offset;
         }
         var width = 350, height = 250, radius = Math.min(width, height) / 2;
         var xSunburst = d3.scale.linear()
@@ -177,7 +163,7 @@ var SVG = (function () {
     SVG.createStreamgraph = function (d3, jquery, textures, colors, timestamps, streamgraphJson, layout) {
         function formatTick(d) {
             var format = d3.time.format("%Y-%m-%d %H:%M:%S");
-            var date = new Date(d);
+            var date = new Date(d / 1e6);
             return format(date);
         }
         var _streamgraphJson = JSON.parse(JSON.stringify(streamgraphJson));
@@ -237,7 +223,7 @@ var SVG = (function () {
             mousex = mousex[0];
             var xTimestamp = xStream.invert(mousex);
             var baseTimestamp = d.values[0].x;
-            var yObject = d.values[Math.floor((xTimestamp - baseTimestamp) / 1e3)];
+            var yObject = d.values[Math.floor((xTimestamp - baseTimestamp) / 1e9)];
             var power = yObject.y == null ? '0 W' : (yObject.y.toFixed(2) + " W");
             var fields = d.key.split('.');
             var name = fields[fields.length - 1];
@@ -268,6 +254,23 @@ function changeRun(config, d3, jquery, textures, chroma, chromaPalette) {
     var run = jquery('#run select').val();
     jquery('#streamgraph-body').empty();
     jquery('#sunburst').empty();
+    var firstTimestamp = 0;
+    var lastTimestamp = 0;
+    jquery.ajax({
+        type: 'get',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('Authorization', "Basic " + btoa(config.influxUser + ":" + config.influxPwd));
+        },
+        async: false,
+        url: "http://" + config.influxHost + ":" + config.influxPort + "/query",
+        data: { 'db': config.influxDB, 'epoch': 'ns', 'q': "select first(cpu) from " + software + " where run = '" + run + "'; select last(cpu) from " + software + " where run = '" + run + "'" }
+    }).done(function (json) {
+        firstTimestamp = json.results[0].series[0].values[0][0];
+        lastTimestamp = json.results[1].series[0].values[0][0];
+    });
+    var sunburst = new Sunburst(software);
+    var streamgraphJson = [];
+    var timestamps = new Set();
     var methods = new Set();
     jquery.ajax({
         type: 'get',
@@ -276,14 +279,34 @@ function changeRun(config, d3, jquery, textures, chroma, chromaPalette) {
         },
         async: false,
         url: "http://" + config.influxHost + ":" + config.influxPort + "/query",
-        data: { 'db': config.influxDB, 'epoch': 'ns', 'q': "select cpu from " + software + " where run = '" + run + "' group by method" }
+        data: { 'db': config.influxDB, 'epoch': 'ns', 'q': "select median(cpu) as cpu, median(disk) as disk from " + software + " where run = '" + run + "' and time >= " + firstTimestamp + " and time <= " + lastTimestamp + " group by method,time(1s) fill(0)" }
     }).done(function (json) {
         for (var _i = 0, _a = json.results[0].series; _i < _a.length; _i++) {
             var object = _a[_i];
-            for (var _b = 0, _c = object.tags.method.split('.'); _b < _c.length; _b++) {
-                var method = _c[_b];
-                methods.add(method);
+            var method = object.tags.method;
+            methods.add(method);
+            var totalCPU = 0;
+            var totalDISK = 0;
+            for (var _b = 0, _c = object.values; _b < _c.length; _b++) {
+                var value = _c[_b];
+                var timestamp = value[0];
+                timestamps.add(timestamp);
+                var cpu = value[1];
+                var disk = value[2];
+                var cpuJson = {};
+                var diskJson = {};
+                cpuJson['name'] = method + " [CPU]";
+                diskJson['name'] = method + " [DISK]";
+                cpuJson['x'] = timestamp;
+                diskJson['x'] = timestamp;
+                cpuJson['y'] = cpu;
+                diskJson['y'] = disk;
+                streamgraphJson.push(cpuJson);
+                streamgraphJson.push(diskJson);
+                totalCPU += cpu;
+                totalDISK += disk;
             }
+            sunburst.addChild(method, totalCPU, totalDISK);
         }
     });
     var palette = chromaPalette.palette();
@@ -295,65 +318,7 @@ function changeRun(config, d3, jquery, textures, chroma, chromaPalette) {
     }, true, 50, false, 'Default');
     colorsIWH = palette.diffSort(colorsIWH, 'Default').map(function (color) { return color.hex(); });
     var colors = d3.scale.ordinal().range(colorsIWH);
-    jquery.ajax({
-        type: 'get',
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader('Authorization', "Basic " + btoa(config.influxUser + ":" + config.influxPwd));
-        },
-        async: false,
-        url: "http://" + config.influxHost + ":" + config.influxPort + "/query",
-        data: { 'db': config.influxDB, 'epoch': 'ns', 'q': "select sum(cpu) as cpu, sum(disk) as disk from " + software + " where run = '" + run + "' group by method" }
-    }).done(function (json) {
-        var sunburst = new Sunburst(software);
-        for (var _i = 0, _a = json.results[0].series; _i < _a.length; _i++) {
-            var object = _a[_i];
-            sunburst.addChild(object.tags.method, object.values[0][1], object.values[0][2]);
-        }
-        SVG.createSunburst(d3, jquery, textures, colors, sunburst.json());
-    });
-    var timestamps = [];
-    jquery.ajax({
-        type: 'get',
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader('Authorization', "Basic " + btoa(config.influxUser + ":" + config.influxPwd));
-        },
-        async: false,
-        url: "http://" + config.influxHost + ":" + config.influxPort + "/query",
-        data: { 'db': config.influxDB, 'epoch': 'ns', 'q': "select time,cpu from " + software + " where run = '" + run + "' order by time" }
-    }).done(function (json) {
-        for (var _i = 0, _a = json.results[0].series[0].values; _i < _a.length; _i++) {
-            var object = _a[_i];
-            timestamps.push(object[0]);
-        }
-        timestamps = timestamps.sort();
-    });
-    var streamgraphJson = [];
-    jquery.ajax({
-        type: 'get',
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader('Authorization', "Basic " + btoa(config.influxUser + ":" + config.influxPwd));
-        },
-        async: false,
-        url: "http://" + config.influxHost + ":" + config.influxPort + "/query",
-        data: { 'db': config.influxDB, 'epoch': 'ms', 'q': "select sum(cpu) as cpu, sum(disk) as disk from " + software + " where run = '" + run + "' and time >= " + timestamps[0] + " and time <= " + timestamps[timestamps.length - 1] + " group by method,time(1s) fill(previous)" }
-    }).done(function (json) {
-        for (var _i = 0, _a = json.results[0].series; _i < _a.length; _i++) {
-            var object = _a[_i];
-            for (var _b = 0, _c = object.values; _b < _c.length; _b++) {
-                var value = _c[_b];
-                var cpu = {};
-                var disk = {};
-                cpu['name'] = object.tags.method + " [CPU]";
-                disk['name'] = object.tags.method + " [DISK]";
-                cpu['x'] = value[0];
-                disk['x'] = value[0];
-                cpu['y'] = value[1];
-                disk['y'] = value[2];
-                streamgraphJson.push(cpu);
-                streamgraphJson.push(disk);
-            }
-        }
-    });
+    SVG.createSunburst(d3, jquery, textures, colors, sunburst.json());
     jquery('input[name=context-js]').unbind();
     jquery('input[name=context-js]').change(function () {
         jquery('#streamgraph-body').empty();
