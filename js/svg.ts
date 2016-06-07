@@ -69,11 +69,11 @@ class SVG {
 
     function formatJSObjName(obj: any) {
       let name = obj.name.startsWith('self') ? `${obj.parent.name} [${obj.name.split('self')[1]}]` : obj.name
-      let power = obj.value
-      let totalPower = sunburstData[0].value
-      let percent = (power / totalPower) * 100
+      let energy = obj.value
+      let totalEnergy = sunburstData[0].value
+      let percent = (energy / totalEnergy) * 100
 
-      return `<b>${name}</b><br><b>${power.toFixed(2)} W (${percent.toFixed(2)}% of ${totalPower.toFixed(2)} W)</b>`
+      return `<b>${name}</b><br><b>${energy.toFixed(2)} J (${percent.toFixed(2)}% of ${totalEnergy.toFixed(2)} J)</b>`
     }
 
     function fullName(obj: any) {
@@ -95,27 +95,6 @@ class SVG {
 
       return { 'pathToDisplay': pathToDisplay.join("."), "path": path.join(".") }
     }
-
-    function getOffset(evt)
-{
-if(evt.offsetX!=undefined)
-return {x:evt.offsetX,y:evt.offsetY};
-
-var el = evt.target;
-var offset = {x:0,y:0};
-
-while(el.offsetParent)
-{
-offset.x+=el.offsetLeft;
-offset.y+=el.offsetTop;
-el = el.offsetParent;
-}
-
-offset.x = evt.pageX - offset.x;
-offset.y = evt.pageY - offset.y;
-
-return offset;
-}
 
     let width = 350, height = 250, radius = Math.min(width, height) / 2
 
@@ -220,7 +199,7 @@ return offset;
   static createStreamgraph(d3, jquery, textures, colors, timestamps, streamgraphJson, layout) {
     function formatTick(d) {
       let format = d3.time.format("%Y-%m-%d %H:%M:%S")
-      let date = new Date(d)
+      let date = new Date(d / 1e6)
       return format(date)
     }
 
@@ -235,11 +214,11 @@ return offset;
     let m = layers[0].values.length
 
     let width = jquery(window).width() - 100
-    let height = 200
+    let height = 215
 
     d3.select('#streamgraph-body svg')
       .attr('width', width)
-      .attr('height', height + 25)
+      .attr('height', height)
 
     let xStream = d3.scale.linear()
               .domain(d3.extent(_streamgraphJson, function(d) { return d.x }))
@@ -294,7 +273,7 @@ return offset;
           let xTimestamp = xStream.invert(mousex)
           let baseTimestamp = d.values[0].x
           // 1e9 because we aggregate the values on each second (see request)
-          let yObject = d.values[Math.floor((xTimestamp - baseTimestamp) / 1e3)]
+          let yObject = d.values[Math.floor((xTimestamp - baseTimestamp) / 1e9)]
           let power = yObject.y == null ? '0 W' : (`${yObject.y.toFixed(2)} W`)
           let fields = d.key.split('.')
           let name = fields[fields.length - 1]
@@ -314,11 +293,16 @@ return offset;
       .filter(function(d, i) { return i === 0 || i === svgStream.selectAll('.tick').size() - 1 })
       .remove()
 
+    d3.selectAll('.tick text')
+      .attr('y', function(d) { return 20 })
+
     svgStream.selectAll('.domain')
       .style('fill', 'none')
       .style('stroke', 'grey')
       .style('stroke-width', '1')
       .style('shape-rendering', 'crispEdges')
+
+    d3.select('#streamgraph-body svg').attr('height', height + 75)
   }
 }
 
@@ -328,10 +312,9 @@ function changeRun(config, d3, jquery, textures, chroma, chromaPalette): void {
   jquery('#streamgraph-body').empty()
   jquery('#sunburst').empty()
 
-  /**
-   * Get all methods for creating a color palette.
-   */
-  let methods = new Set<string>()
+  let firstTimestamp = 0
+  let lastTimestamp = 0
+
   jquery.ajax({
     type: 'get',
     beforeSend: function (xhr) {
@@ -339,12 +322,56 @@ function changeRun(config, d3, jquery, textures, chroma, chromaPalette): void {
     },
     async: false,
     url: `http://${config.influxHost}:${config.influxPort}/query`,
-    data: { 'db': config.influxDB, 'epoch': 'ns', 'q': `select cpu from ${software} where run = '${run}' group by method` }
+    data: { 'db': config.influxDB, 'epoch': 'ns', 'q': `select first(cpu) from ${software} where run = '${run}'; select last(cpu) from ${software} where run = '${run}'` }
+  }).done(function(json) {
+    firstTimestamp = json.results[0].series[0].values[0][0]
+    lastTimestamp = json.results[1].series[0].values[0][0]
+  })
+
+  let sunburst = new Sunburst(software)
+  let streamgraphJson = []
+  let timestamps = new Set<number>()
+  let methods = new Set<string>()
+
+  jquery.ajax({
+    type: 'get',
+    beforeSend: function (xhr) {
+      xhr.setRequestHeader('Authorization', `Basic ${btoa(`${config.influxUser}:${config.influxPwd}`)}`)
+    },
+    async: false,
+    url: `http://${config.influxHost}:${config.influxPort}/query`,
+    data: { 'db': config.influxDB, 'epoch': 'ns', 'q': `select median(cpu) as cpu, median(disk) as disk from ${software} where run = '${run}' and time >= ${firstTimestamp} and time <= ${lastTimestamp} group by method,time(1s) fill(0)` }
   }).done(function(json) {
     for (let object of json.results[0].series) {
-      for (let method of object.tags.method.split('.')) {
-        methods.add(method)
+      let method = object.tags.method
+      methods.add(method)
+
+      let totalCPU = 0
+      let totalDISK = 0
+
+      for (let value of object.values) {
+        let timestamp = value[0]
+        timestamps.add(timestamp)
+
+        let cpu = value[1]
+        let disk = value[2]
+
+        let cpuJson = {}
+        let diskJson = {}
+        cpuJson['name'] = `${method} [CPU]`
+        diskJson['name'] = `${method} [DISK]`
+        cpuJson['x'] = timestamp
+        diskJson['x'] = timestamp
+        cpuJson['y'] = cpu
+        diskJson['y'] = disk
+        streamgraphJson.push(cpuJson)
+        streamgraphJson.push(diskJson)
+
+        totalCPU += cpu
+        totalDISK += disk
       }
+
+      sunburst.addChild(method, totalCPU, totalDISK)
     }
   })
 
@@ -369,70 +396,7 @@ function changeRun(config, d3, jquery, textures, chroma, chromaPalette): void {
   colorsIWH = palette.diffSort(colorsIWH, 'Default').map(function(color) { return color.hex() })
   let colors = d3.scale.ordinal().range(colorsIWH)
 
-  /**
-   * Add the sunburst to the HTML page.
-   */
-  jquery.ajax({
-    type: 'get',
-    beforeSend: function (xhr) {
-      xhr.setRequestHeader('Authorization', `Basic ${btoa(`${config.influxUser}:${config.influxPwd}`)}`)
-    },
-    async: false,
-    url: `http://${config.influxHost}:${config.influxPort}/query`,
-    data: { 'db': config.influxDB, 'epoch': 'ns', 'q': `select sum(cpu) as cpu, sum(disk) as disk from ${software} where run = '${run}' group by method` }
-  }).done(function(json) {
-    let sunburst = new Sunburst(software)
-    for (let object of json.results[0].series) {
-      sunburst.addChild(object.tags.method, object.values[0][1], object.values[0][2])
-    }
-    SVG.createSunburst(d3, jquery, textures, colors, sunburst.json())
-  })
-
-  /**
-   * Add the streamgraph to the HTML page.
-   */
-  let timestamps: Array<number> = []
-  jquery.ajax({
-    type: 'get',
-    beforeSend: function (xhr) {
-      xhr.setRequestHeader('Authorization', `Basic ${btoa(`${config.influxUser}:${config.influxPwd}`)}`)
-    },
-    async: false,
-    url: `http://${config.influxHost}:${config.influxPort}/query`,
-    data: { 'db': config.influxDB, 'epoch': 'ns', 'q': `select time,cpu from ${software} where run = '${run}' order by time` }
-  }).done(function(json) {
-    for (let object of json.results[0].series[0].values) {
-     timestamps.push(object[0])
-    }
-    timestamps = timestamps.sort()
-  })
-
-  let streamgraphJson = []
-
-  jquery.ajax({
-    type: 'get',
-    beforeSend: function (xhr) {
-      xhr.setRequestHeader('Authorization', `Basic ${btoa(`${config.influxUser}:${config.influxPwd}`)}`)
-    },
-    async: false,
-    url: `http://${config.influxHost}:${config.influxPort}/query`,
-    data: { 'db': config.influxDB, 'epoch': 'ms', 'q': `select sum(cpu) as cpu, sum(disk) as disk from ${software} where run = '${run}' and time >= ${timestamps[0]} and time <= ${timestamps[timestamps.length - 1]} group by method,time(1s) fill(previous)` }
-  }).done(function(json) {
-    for (let object of json.results[0].series) {
-      for (let value of object.values) {
-        let cpu = {}
-        let disk = {}
-        cpu['name'] = `${object.tags.method} [CPU]`
-        disk['name'] = `${object.tags.method} [DISK]`
-        cpu['x'] = value[0]
-        disk['x'] = value[0]
-        cpu['y'] = value[1]
-        disk['y'] = value[2]
-        streamgraphJson.push(cpu)
-        streamgraphJson.push(disk)
-      }
-    }
-  })
+  SVG.createSunburst(d3, jquery, textures, colors, sunburst.json())
 
   jquery('input[name=context-js]').unbind()
   jquery('input[name=context-js]').change(function() {
@@ -584,5 +548,5 @@ require(['config', 'd3', 'jquery', 'bootstrap', 'textures', 'chroma', 'chromaPal
   }
 
   updateLinkToDownload('#sunburst svg', '#downloads #sunburst')
-  updateLinkToDownload('#streamgraph #streamgraph-body', '#downloads #streamgraph')
+  updateLinkToDownload('#streamgraph #streamgraph-body svg', '#downloads #streamgraph')
 })
