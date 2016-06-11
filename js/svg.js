@@ -445,5 +445,5 @@ require(['config', 'd3', 'jquery', 'bootstrap', 'textures', 'chroma', 'chromaPal
         jquery(linkId).attr('href', url);
     }
     updateLinkToDownload('#sunburst svg', '#downloads #sunburst');
-    updateLinkToDownload('#streamgraph #streamgraph-body', '#downloads #streamgraph');
+    updateLinkToDownload('#streamgraph #streamgraph-body svg', '#downloads #streamgraph');
 });
