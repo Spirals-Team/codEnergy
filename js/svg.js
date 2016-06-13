@@ -173,10 +173,10 @@ var SVG = (function () {
         var layers = stack(nest.entries(_streamgraphJson));
         var m = layers[0].values.length;
         var width = jquery(window).width() - 100;
-        var height = 200;
+        var height = 215;
         d3.select('#streamgraph-body svg')
             .attr('width', width)
-            .attr('height', height + 25);
+            .attr('height', height);
         var xStream = d3.scale.linear()
             .domain(d3.extent(_streamgraphJson, function (d) { return d.x; }))
             .range([0, width - 10]);
@@ -241,11 +241,14 @@ var SVG = (function () {
         svgStream.selectAll('.tick')
             .filter(function (d, i) { return i === 0 || i === svgStream.selectAll('.tick').size() - 1; })
             .remove();
+        d3.selectAll('.tick text')
+            .attr('y', function (d) { return 20; });
         svgStream.selectAll('.domain')
             .style('fill', 'none')
             .style('stroke', 'grey')
             .style('stroke-width', '1')
             .style('shape-rendering', 'crispEdges');
+        d3.select('#streamgraph-body svg').attr('height', height + 75);
     };
     return SVG;
 }());
