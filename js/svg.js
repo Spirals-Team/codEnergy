@@ -162,7 +162,7 @@ var SVG = (function () {
     };
     SVG.createStreamgraph = function (d3, jquery, textures, colors, timestamps, streamgraphJson, layout) {
         function formatTick(d) {
-            var format = d3.time.format("%Y-%m-%d %H:%M:%S");
+            var format = d3.time.format("%H:%M:%S");
             var date = new Date(d / 1e6);
             return format(date);
         }
@@ -266,7 +266,7 @@ function changeRun(config, d3, jquery, textures, chroma, chromaPalette) {
         },
         async: false,
         url: "http://" + config.influxHost + ":" + config.influxPort + "/query",
-        data: { 'db': config.influxDB, 'epoch': 'ns', 'q': "select first(cpu) from " + software + " where run = '" + run + "'; select last(cpu) from " + software + " where run = '" + run + "'" }
+        data: { 'db': config.influxDB, 'epoch': 'ns', 'q': "select first(cpu) from \"" + software + "\" where run = '" + run + "'; select last(cpu) from \"" + software + "\" where run = '" + run + "'" }
     }).done(function (json) {
         firstTimestamp = json.results[0].series[0].values[0][0];
         lastTimestamp = json.results[1].series[0].values[0][0];
@@ -282,7 +282,7 @@ function changeRun(config, d3, jquery, textures, chroma, chromaPalette) {
         },
         async: false,
         url: "http://" + config.influxHost + ":" + config.influxPort + "/query",
-        data: { 'db': config.influxDB, 'epoch': 'ns', 'q': "select median(cpu) as cpu, median(disk) as disk from " + software + " where run = '" + run + "' and time >= " + firstTimestamp + " and time <= " + lastTimestamp + " group by method,time(1s) fill(0)" }
+        data: { 'db': config.influxDB, 'epoch': 'ns', 'q': "select median(cpu) as cpu, median(disk) as disk from \"" + software + "\" where run = '" + run + "' and time >= " + firstTimestamp + " and time <= " + lastTimestamp + " group by method,time(1s) fill(0)" }
     }).done(function (json) {
         for (var _i = 0, _a = json.results[0].series; _i < _a.length; _i++) {
             var object = _a[_i];
@@ -346,13 +346,14 @@ function changeSoftware(config, d3, jquery, textures, chroma, chromaPalette) {
         },
         async: false,
         url: "http://" + config.influxHost + ":" + config.influxPort + "/query",
-        data: { 'db': config.influxDB, 'epoch': 'ns', 'q': "select cpu from " + software + " group by run" }
+        data: { 'db': config.influxDB, 'epoch': 'ns', 'q': "select cpu from \"" + software + "\" group by run" }
     }).done(function (json) {
         for (var _i = 0, _a = json.results[0].series; _i < _a.length; _i++) {
             var serie = _a[_i];
-            runs.push(serie.tags.run);
+            runs.push(parseInt(serie.tags.run));
         }
     });
+    runs = runs.sort(function (a, b) { return a - b; });
     jquery('#run select').unbind();
     jquery('#run select').empty();
     for (var _i = 0, runs_1 = runs; _i < runs_1.length; _i++) {
