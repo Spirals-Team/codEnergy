@@ -198,7 +198,7 @@ class SVG {
 
   static createStreamgraph(d3, jquery, textures, colors, timestamps, streamgraphJson, layout) {
     function formatTick(d) {
-      let format = d3.time.format("%Y-%m-%d %H:%M:%S")
+      let format = d3.time.format("%H:%M:%S")
       let date = new Date(d / 1e6)
       return format(date)
     }
@@ -322,7 +322,7 @@ function changeRun(config, d3, jquery, textures, chroma, chromaPalette): void {
     },
     async: false,
     url: `http://${config.influxHost}:${config.influxPort}/query`,
-    data: { 'db': config.influxDB, 'epoch': 'ns', 'q': `select first(cpu) from ${software} where run = '${run}'; select last(cpu) from ${software} where run = '${run}'` }
+    data: { 'db': config.influxDB, 'epoch': 'ns', 'q': `select first(cpu) from "${software}" where run = '${run}'; select last(cpu) from "${software}" where run = '${run}'` }
   }).done(function(json) {
     firstTimestamp = json.results[0].series[0].values[0][0]
     lastTimestamp = json.results[1].series[0].values[0][0]
@@ -340,7 +340,7 @@ function changeRun(config, d3, jquery, textures, chroma, chromaPalette): void {
     },
     async: false,
     url: `http://${config.influxHost}:${config.influxPort}/query`,
-    data: { 'db': config.influxDB, 'epoch': 'ns', 'q': `select median(cpu) as cpu, median(disk) as disk from ${software} where run = '${run}' and time >= ${firstTimestamp} and time <= ${lastTimestamp} group by method,time(1s) fill(0)` }
+    data: { 'db': config.influxDB, 'epoch': 'ns', 'q': `select median(cpu) as cpu, median(disk) as disk from "${software}" where run = '${run}' and time >= ${firstTimestamp} and time <= ${lastTimestamp} group by method,time(1s) fill(0)` }
   }).done(function(json) {
     for (let object of json.results[0].series) {
       let method = object.tags.method
@@ -428,12 +428,14 @@ function changeSoftware(config, d3, jquery, textures, chroma, chromaPalette): vo
      },
      async: false,
      url: `http://${config.influxHost}:${config.influxPort}/query`,
-     data: { 'db': config.influxDB, 'epoch': 'ns', 'q': `select cpu from ${software} group by run` }
+     data: { 'db': config.influxDB, 'epoch': 'ns', 'q': `select cpu from "${software}" group by run` }
    }).done(function(json) {
      for (let serie of json.results[0].series) {
-       runs.push(serie.tags.run)
+       runs.push(parseInt(serie.tags.run))
      }
    })
+
+   runs = runs.sort(function(a, b) { return a - b })
 
    jquery('#run select').unbind()
    jquery('#run select').empty()
