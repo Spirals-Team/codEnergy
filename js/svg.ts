@@ -96,7 +96,7 @@ class SVG {
       return { 'pathToDisplay': pathToDisplay.join("."), "path": path.join(".") }
     }
 
-    let width = 350, height = 250, radius = Math.min(width, height) / 2
+    let width = 600, height = 550, radius = Math.min(width, height - 50) / 2
 
     let xSunburst = d3.scale.linear()
         .range([0, 2 * Math.PI])
@@ -107,10 +107,11 @@ class SVG {
     let svg = d3.select('#sunburst')
       .append('svg')
       .attr('id', 'svg')
-      .attr('viewBox', `0 0 ${width} ${height}`)
-      .attr('preserveAspectRatio', 'xMinYMid')
+      .attr('width', width)
+      .attr('height', height)
+      //.attr('preserveAspectRatio', 'xMinYMid')
       .append('g')
-      .attr('transform', `translate(${width / 2.25},${height / 2})`)
+      .attr('transform', `translate(${width / 2},${(height - 50) / 2})`)
 
     let tooltip = d3.select('#sunburst')
       .append('div')
@@ -167,6 +168,42 @@ class SVG {
         return tooltip.style('opacity', 0)
       })
 
+      let legendCPUTexture = textures.circles().size(4).radius(2).fill('white').stroke('black').strokeWidth(1)
+      let legendDiskTexture = textures.circles().size(6).radius(2).fill('black').stroke('white').strokeWidth(1)
+
+      d3.select('#sunburst svg')
+        .call(legendCPUTexture)
+        .append('rect')
+        .attr('width', 40)
+        .attr('height', 16)
+        .attr('transform', 'translate(' + (width - 100) +')')
+        .style('fill', legendCPUTexture.url())
+        .style('stroke', 'black')
+        .style('stroke-width', '0.1')
+      d3.select('#sunburst svg')
+        .append('text')
+        .text('CPU')
+        .attr("x", width - 50)
+        .attr("y", 12)
+        .style('stroke', 'none')
+        .style('fill', 'black')
+      d3.select('#sunburst svg')
+        .call(legendDiskTexture)
+        .append('rect')
+        .attr('width', 40)
+        .attr('height', 16)
+        .attr('transform', 'translate(' + (width - 100) +',' + 20 + ')')
+        .style('fill', legendDiskTexture.url())
+        .style('stroke', 'none')
+        .style('stroke-width', '0.1')
+      d3.select('#sunburst svg')
+        .append('text')
+        .text('DISK')
+        .attr('x', width - 50)
+        .attr('y', 32)
+        .style('stroke', 'none')
+        .style('fill', 'black')
+
     let coor = jquery('#sunburst g').offset()
 
     // Zooming: interpolate the scales
@@ -185,15 +222,15 @@ class SVG {
       }
     }
 
-    let chart = jquery('#sunburst'),
-        aspect = chart.width() / chart.height(),
-        container = chart.parent()
-
-    jquery(window).on('resize', function() {
-        let targetWidth = container.width()
-        chart.attr('width', targetWidth)
-        chart.attr('height', Math.round(targetWidth / aspect))
-    }).trigger('resize')
+    // let chart = jquery('#sunburst'),
+    //     aspect = chart.width() / chart.height(),
+    //     container = chart.parent()
+    //
+    // jquery(window).on('resize', function() {
+    //     let targetWidth = container.width()
+    //     chart.attr('width', targetWidth)
+    //     chart.attr('height', Math.round(targetWidth / aspect))
+    // }).trigger('resize')
   }
 
   static createStreamgraph(d3, jquery, textures, colors, timestamps, streamgraphJson, layout) {
@@ -214,7 +251,7 @@ class SVG {
     let m = layers[0].values.length
 
     let width = jquery(window).width() - 100
-    let height = 215
+    let height = 350
 
     d3.select('#streamgraph-body svg')
       .attr('width', width)
@@ -226,7 +263,7 @@ class SVG {
 
     let yStream = d3.scale.linear()
               .domain([0, d3.max(_streamgraphJson, function(d) { return d.y0 + d.y })])
-              .range([height - 10, 0])
+              .range([height - 10, 40])
 
     let areaStream = d3.svg.area()
                 .x(function(d) { return xStream(d.x) })
@@ -290,6 +327,8 @@ class SVG {
         })
 
     svgStream.selectAll('.tick')
+      .style('stroke', 'none')
+      .style('fill', 'black')
       .filter(function(d, i) { return i === 0 || i === svgStream.selectAll('.tick').size() - 1 })
       .remove()
 
@@ -303,6 +342,42 @@ class SVG {
       .style('shape-rendering', 'crispEdges')
 
     d3.select('#streamgraph-body svg').attr('height', height + 75)
+
+    let legendCPUTexture = textures.circles().size(4).radius(2).fill('white').stroke('black').strokeWidth(1)
+    let legendDiskTexture = textures.circles().size(6).radius(2).fill('black').stroke('white').strokeWidth(1)
+
+    d3.select('#streamgraph-body svg')
+      .call(legendCPUTexture)
+      .append('rect')
+      .attr('width', 40)
+      .attr('height', 16)
+      .attr('transform', 'translate(' + (width - 200) +')')
+      .style('fill', legendCPUTexture.url())
+      .style('stroke', 'black')
+      .style('stroke-width', '0.1')
+    d3.select('#streamgraph-body svg')
+      .append('text')
+      .text('CPU')
+      .attr("x", width - 150)
+      .attr("y", 12)
+      .style('stroke', 'none')
+      .style('fill', 'black')
+    d3.select('#streamgraph-body svg')
+      .call(legendDiskTexture)
+      .append('rect')
+      .attr('width', 40)
+      .attr('height', 16)
+      .attr('transform', 'translate(' + (width - 100) +')')
+      .style('fill', legendDiskTexture.url())
+      .style('stroke', 'none')
+      .style('stroke-width', '0.1')
+    d3.select('#streamgraph-body svg')
+      .append('text')
+      .text('DISK')
+      .attr('x', width - 50)
+      .attr('y', 12)
+      .style('stroke', 'none')
+      .style('fill', 'black')
   }
 }
 
@@ -397,12 +472,14 @@ function changeRun(config, d3, jquery, textures, chroma, chromaPalette): void {
   let colors = d3.scale.ordinal().range(colorsIWH)
 
   SVG.createSunburst(d3, jquery, textures, colors, sunburst.json())
+  updateLinkToDownload(jquery, '#sunburst svg', '#downloads #sunburst')
 
   jquery('input[name=context-js]').unbind()
   jquery('input[name=context-js]').change(function() {
     jquery('#streamgraph-body').empty()
     let context = this.value
     SVG.createStreamgraph(d3, jquery, textures, colors, timestamps, streamgraphJson.filter(function(d) { return d.name.substring(0, context.length) === context }), jquery('#layout select').val())
+    updateLinkToDownload(jquery, '#streamgraph #streamgraph-body svg', '#downloads #streamgraph')
   })
   jquery('input[name=context-js]').change()
 
@@ -411,6 +488,7 @@ function changeRun(config, d3, jquery, textures, chroma, chromaPalette): void {
     jquery('#streamgraph-body').empty()
     let context = jquery('input[name=context-js]').val()
     SVG.createStreamgraph(d3, jquery, textures, colors, timestamps, streamgraphJson.filter(function(d) { return d.name.substring(0, context.length) === context }), this.value)
+    updateLinkToDownload(jquery, '#streamgraph #streamgraph-body svg', '#downloads #streamgraph')
   })
 }
 
@@ -454,6 +532,25 @@ function changeSoftware(config, d3, jquery, textures, chroma, chromaPalette): vo
    jquery('#run select').change()
 }
 
+function updateLinkToDownload(jquery, svgId, linkId) {
+  let svg = jquery(svgId)[0]
+
+  let serializer = new XMLSerializer()
+  let source = serializer.serializeToString(svg)
+
+  if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+    source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"')
+  }
+  if (!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)) {
+    source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"')
+  }
+
+  source = '<?xml version="1.0" standalone="no"?>\r\n' + source
+
+  let url = 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(source)
+  jquery(linkId).attr('href', url)
+}
+
 require(['config', 'd3', 'jquery', 'bootstrap', 'textures', 'chroma', 'chromaPalette'], function(config, d3, jquery, bootstrap, textures, chroma, chromaPalette) {
   /**
    * Get all software names and update the <select> tag.
@@ -485,70 +582,47 @@ require(['config', 'd3', 'jquery', 'bootstrap', 'textures', 'chroma', 'chromaPal
   })
   jquery('#software select').change()
 
-  /**
-   * Add a legend.
-   */
-  let legendCPUTexture = textures.circles().size(4).radius(2).fill('white').stroke('black').strokeWidth(1)
-  //let t = textures.circles().size(4).radius(2).fill('white').stroke(colors(parentName)).strokeWidth(2)
-  let legendDiskTexture = textures.circles().size(6).radius(2).fill('black').stroke('white').strokeWidth(1)
-
-  d3.select('#legend')
-    .append('div')
-    .attr('id', 'cpu')
-    .append('svg')
-    .attr('width', 40)
-    .attr('height', 16)
-    .call(legendCPUTexture)
-    .append('rect')
-    .attr('width', 40)
-    .attr('height', 16)
-    .style('fill', legendCPUTexture.url())
-    .style('stroke', 'black')
-    .style('stroke-width', '0.1')
-
-  d3.select('#legend #cpu')
-    .append('text')
-    .text('CPU')
-    .style('padding-left', '5px')
-
-  d3.select('#legend')
-    .append('div')
-    .attr('id', 'disk')
-    .append('svg')
-    .call(legendDiskTexture)
-    .attr('width', 40)
-    .attr('height', 16)
-    .append('rect')
-    .attr('width', 40)
-    .attr('height', 16)
-    .style('fill', legendDiskTexture.url())
-    .style('stroke', 'black')
-    .style('stroke-width', '0.1')
-
-  d3.select('#disk')
-    .append('text')
-    .text('DISK')
-    .style('padding-left', '5px')
-
-  function updateLinkToDownload(svgId, linkId) {
-    let svg = jquery(svgId)[0]
-
-    let serializer = new XMLSerializer()
-    let source = serializer.serializeToString(svg)
-
-    if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
-      source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"')
-    }
-    if (!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)) {
-      source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"')
-    }
-
-    source = '<?xml version="1.0" standalone="no"?>\r\n' + source
-
-    let url = 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(source)
-    jquery(linkId).attr('href', url)
-  }
-
-  updateLinkToDownload('#sunburst svg', '#downloads #sunburst')
-  updateLinkToDownload('#streamgraph #streamgraph-body svg', '#downloads #streamgraph')
+  // /**
+  //  * Add a legend.
+  //  */
+  // let legendCPUTexture = textures.circles().size(4).radius(2).fill('white').stroke('black').strokeWidth(1)
+  // let legendDiskTexture = textures.circles().size(6).radius(2).fill('black').stroke('white').strokeWidth(1)
+  //
+  // d3.select('#legend')
+  //   .append('div')
+  //   .attr('id', 'cpu')
+  //   .append('svg')
+  //   .attr('width', 40)
+  //   .attr('height', 16)
+  //   .call(legendCPUTexture)
+  //   .append('rect')
+  //   .attr('width', 40)
+  //   .attr('height', 16)
+  //   .style('fill', legendCPUTexture.url())
+  //   .style('stroke', 'black')
+  //   .style('stroke-width', '0.1')
+  //
+  // d3.select('#legend #cpu')
+  //   .append('text')
+  //   .text('CPU')
+  //   .style('padding-left', '5px')
+  //
+  // d3.select('#legend')
+  //   .append('div')
+  //   .attr('id', 'disk')
+  //   .append('svg')
+  //   .call(legendDiskTexture)
+  //   .attr('width', 40)
+  //   .attr('height', 16)
+  //   .append('rect')
+  //   .attr('width', 40)
+  //   .attr('height', 16)
+  //   .style('fill', legendDiskTexture.url())
+  //   .style('stroke', 'black')
+  //   .style('stroke-width', '0.1')
+  //
+  // d3.select('#disk')
+  //   .append('text')
+  //   .text('DISK')
+  //   .style('padding-left', '5px')
 })
