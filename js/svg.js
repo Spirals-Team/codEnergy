@@ -77,7 +77,7 @@ var SVG = (function () {
             pathToDisplay.unshift(current.name);
             return { 'pathToDisplay': pathToDisplay.join("."), "path": path.join(".") };
         }
-        var width = 350, height = 250, radius = Math.min(width, height) / 2;
+        var width = 600, height = 550, radius = Math.min(width, height - 50) / 2;
         var xSunburst = d3.scale.linear()
             .range([0, 2 * Math.PI]);
         var ySunburst = d3.scale.sqrt()
@@ -85,10 +85,10 @@ var SVG = (function () {
         var svg = d3.select('#sunburst')
             .append('svg')
             .attr('id', 'svg')
-            .attr('viewBox', "0 0 " + width + " " + height)
-            .attr('preserveAspectRatio', 'xMinYMid')
+            .attr('width', width)
+            .attr('height', height)
             .append('g')
-            .attr('transform', "translate(" + width / 2.25 + "," + height / 2 + ")");
+            .attr('transform', "translate(" + width / 2 + "," + (height - 50) / 2 + ")");
         var tooltip = d3.select('#sunburst')
             .append('div')
             .attr('class', 'tooltip')
@@ -141,6 +141,40 @@ var SVG = (function () {
             .on('mouseout', function () {
             return tooltip.style('opacity', 0);
         });
+        var legendCPUTexture = textures.circles().size(4).radius(2).fill('white').stroke('black').strokeWidth(1);
+        var legendDiskTexture = textures.circles().size(6).radius(2).fill('black').stroke('white').strokeWidth(1);
+        d3.select('#sunburst svg')
+            .call(legendCPUTexture)
+            .append('rect')
+            .attr('width', 40)
+            .attr('height', 16)
+            .attr('transform', 'translate(' + (width - 100) + ')')
+            .style('fill', legendCPUTexture.url())
+            .style('stroke', 'black')
+            .style('stroke-width', '0.1');
+        d3.select('#sunburst svg')
+            .append('text')
+            .text('CPU')
+            .attr("x", width - 50)
+            .attr("y", 12)
+            .style('stroke', 'none')
+            .style('fill', 'black');
+        d3.select('#sunburst svg')
+            .call(legendDiskTexture)
+            .append('rect')
+            .attr('width', 40)
+            .attr('height', 16)
+            .attr('transform', 'translate(' + (width - 100) + ',' + 20 + ')')
+            .style('fill', legendDiskTexture.url())
+            .style('stroke', 'none')
+            .style('stroke-width', '0.1');
+        d3.select('#sunburst svg')
+            .append('text')
+            .text('DISK')
+            .attr('x', width - 50)
+            .attr('y', 32)
+            .style('stroke', 'none')
+            .style('fill', 'black');
         var coor = jquery('#sunburst g').offset();
         function arcTween(d) {
             var names = fullName(d);
@@ -153,12 +187,6 @@ var SVG = (function () {
                     : function (t) { xSunburst.domain(xd(t)); ySunburst.domain(yd(t)).range(yr(t)); return arc(d); };
             };
         }
-        var chart = jquery('#sunburst'), aspect = chart.width() / chart.height(), container = chart.parent();
-        jquery(window).on('resize', function () {
-            var targetWidth = container.width();
-            chart.attr('width', targetWidth);
-            chart.attr('height', Math.round(targetWidth / aspect));
-        }).trigger('resize');
     };
     SVG.createStreamgraph = function (d3, jquery, textures, colors, timestamps, streamgraphJson, layout) {
         function formatTick(d) {
@@ -173,7 +201,7 @@ var SVG = (function () {
         var layers = stack(nest.entries(_streamgraphJson));
         var m = layers[0].values.length;
         var width = jquery(window).width() - 100;
-        var height = 215;
+        var height = 350;
         d3.select('#streamgraph-body svg')
             .attr('width', width)
             .attr('height', height);
@@ -182,7 +210,7 @@ var SVG = (function () {
             .range([0, width - 10]);
         var yStream = d3.scale.linear()
             .domain([0, d3.max(_streamgraphJson, function (d) { return d.y0 + d.y; })])
-            .range([height - 10, 0]);
+            .range([height - 10, 40]);
         var areaStream = d3.svg.area()
             .x(function (d) { return xStream(d.x); })
             .y0(function (d) { return yStream(d.y0); })
@@ -239,6 +267,8 @@ var SVG = (function () {
             jquery('#info .form-horizontal #power span').text('/');
         });
         svgStream.selectAll('.tick')
+            .style('stroke', 'none')
+            .style('fill', 'black')
             .filter(function (d, i) { return i === 0 || i === svgStream.selectAll('.tick').size() - 1; })
             .remove();
         d3.selectAll('.tick text')
@@ -249,6 +279,40 @@ var SVG = (function () {
             .style('stroke-width', '1')
             .style('shape-rendering', 'crispEdges');
         d3.select('#streamgraph-body svg').attr('height', height + 75);
+        var legendCPUTexture = textures.circles().size(4).radius(2).fill('white').stroke('black').strokeWidth(1);
+        var legendDiskTexture = textures.circles().size(6).radius(2).fill('black').stroke('white').strokeWidth(1);
+        d3.select('#streamgraph-body svg')
+            .call(legendCPUTexture)
+            .append('rect')
+            .attr('width', 40)
+            .attr('height', 16)
+            .attr('transform', 'translate(' + (width - 200) + ')')
+            .style('fill', legendCPUTexture.url())
+            .style('stroke', 'black')
+            .style('stroke-width', '0.1');
+        d3.select('#streamgraph-body svg')
+            .append('text')
+            .text('CPU')
+            .attr("x", width - 150)
+            .attr("y", 12)
+            .style('stroke', 'none')
+            .style('fill', 'black');
+        d3.select('#streamgraph-body svg')
+            .call(legendDiskTexture)
+            .append('rect')
+            .attr('width', 40)
+            .attr('height', 16)
+            .attr('transform', 'translate(' + (width - 100) + ')')
+            .style('fill', legendDiskTexture.url())
+            .style('stroke', 'none')
+            .style('stroke-width', '0.1');
+        d3.select('#streamgraph-body svg')
+            .append('text')
+            .text('DISK')
+            .attr('x', width - 50)
+            .attr('y', 12)
+            .style('stroke', 'none')
+            .style('fill', 'black');
     };
     return SVG;
 }());
@@ -322,11 +386,13 @@ function changeRun(config, d3, jquery, textures, chroma, chromaPalette) {
     colorsIWH = palette.diffSort(colorsIWH, 'Default').map(function (color) { return color.hex(); });
     var colors = d3.scale.ordinal().range(colorsIWH);
     SVG.createSunburst(d3, jquery, textures, colors, sunburst.json());
+    updateLinkToDownload(jquery, '#sunburst svg', '#downloads #sunburst');
     jquery('input[name=context-js]').unbind();
     jquery('input[name=context-js]').change(function () {
         jquery('#streamgraph-body').empty();
         var context = this.value;
         SVG.createStreamgraph(d3, jquery, textures, colors, timestamps, streamgraphJson.filter(function (d) { return d.name.substring(0, context.length) === context; }), jquery('#layout select').val());
+        updateLinkToDownload(jquery, '#streamgraph #streamgraph-body svg', '#downloads #streamgraph');
     });
     jquery('input[name=context-js]').change();
     jquery('#layout select').unbind();
@@ -334,6 +400,7 @@ function changeRun(config, d3, jquery, textures, chroma, chromaPalette) {
         jquery('#streamgraph-body').empty();
         var context = jquery('input[name=context-js]').val();
         SVG.createStreamgraph(d3, jquery, textures, colors, timestamps, streamgraphJson.filter(function (d) { return d.name.substring(0, context.length) === context; }), this.value);
+        updateLinkToDownload(jquery, '#streamgraph #streamgraph-body svg', '#downloads #streamgraph');
     });
 }
 function changeSoftware(config, d3, jquery, textures, chroma, chromaPalette) {
@@ -369,6 +436,20 @@ function changeSoftware(config, d3, jquery, textures, chroma, chromaPalette) {
     });
     jquery('#run select').change();
 }
+function updateLinkToDownload(jquery, svgId, linkId) {
+    var svg = jquery(svgId)[0];
+    var serializer = new XMLSerializer();
+    var source = serializer.serializeToString(svg);
+    if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+        source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+    if (!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)) {
+        source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+    }
+    source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+    var url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(source);
+    jquery(linkId).attr('href', url);
+}
 require(['config', 'd3', 'jquery', 'bootstrap', 'textures', 'chroma', 'chromaPalette'], function (config, d3, jquery, bootstrap, textures, chroma, chromaPalette) {
     var softwares = new Array();
     jquery.ajax({
@@ -398,56 +479,4 @@ require(['config', 'd3', 'jquery', 'bootstrap', 'textures', 'chroma', 'chromaPal
         changeSoftware(config, d3, jquery, textures, chroma, chromaPalette);
     });
     jquery('#software select').change();
-    var legendCPUTexture = textures.circles().size(4).radius(2).fill('white').stroke('black').strokeWidth(1);
-    var legendDiskTexture = textures.circles().size(6).radius(2).fill('black').stroke('white').strokeWidth(1);
-    d3.select('#legend')
-        .append('div')
-        .attr('id', 'cpu')
-        .append('svg')
-        .attr('width', 40)
-        .attr('height', 16)
-        .call(legendCPUTexture)
-        .append('rect')
-        .attr('width', 40)
-        .attr('height', 16)
-        .style('fill', legendCPUTexture.url())
-        .style('stroke', 'black')
-        .style('stroke-width', '0.1');
-    d3.select('#legend #cpu')
-        .append('text')
-        .text('CPU')
-        .style('padding-left', '5px');
-    d3.select('#legend')
-        .append('div')
-        .attr('id', 'disk')
-        .append('svg')
-        .call(legendDiskTexture)
-        .attr('width', 40)
-        .attr('height', 16)
-        .append('rect')
-        .attr('width', 40)
-        .attr('height', 16)
-        .style('fill', legendDiskTexture.url())
-        .style('stroke', 'black')
-        .style('stroke-width', '0.1');
-    d3.select('#disk')
-        .append('text')
-        .text('DISK')
-        .style('padding-left', '5px');
-    function updateLinkToDownload(svgId, linkId) {
-        var svg = jquery(svgId)[0];
-        var serializer = new XMLSerializer();
-        var source = serializer.serializeToString(svg);
-        if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
-            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-        }
-        if (!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)) {
-            source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
-        }
-        source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
-        var url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(source);
-        jquery(linkId).attr('href', url);
-    }
-    updateLinkToDownload('#sunburst svg', '#downloads #sunburst');
-    updateLinkToDownload('#streamgraph #streamgraph-body svg', '#downloads #streamgraph');
 });
