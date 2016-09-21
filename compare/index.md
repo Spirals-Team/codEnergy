@@ -1,0 +1,4 @@
+---
+layout: compare
+title: Compare
+---

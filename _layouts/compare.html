@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+{% include head.html %}
+
+  <style type="text/css">
+
+  svg {
+    font: 10px sans-serif;
+  }
+
+
+  .axis {
+    font: 10px sans-serif;
+  }
+
+  .axis text {
+    -webkit-transition: fill-opacity 250ms linear;
+  }
+
+  .axis path {
+    display: none;
+  }
+
+  .axis line {
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+
+  .horizon {
+    border-bottom: solid 1px #000;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .horizon {
+    border-top: solid 1px #000;
+    border-bottom: solid 1px #000;
+  }
+
+  .horizon + .horizon {
+    border-top: none;
+  }
+
+  .horizon canvas {
+    display: block;
+  }
+
+  .horizon .title,
+  .horizon .value {
+    color: black;
+    font-weight: bold;
+    bottom: 0;
+    line-height: 30px;
+    margin: 0 6px;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  .horizon .title {
+    left: 0;
+  }
+
+  .horizon .value {
+    right: 0;
+  }
+
+  .line {
+    background: #000;
+    opacity: .2;
+    z-index: 2;
+  }
+  </style>
+
+  <body>
+
+{% include header.html %}
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+
+        <div id="info" class="col-md-6">
+          <h3>Energy comparison</h3>
+
+          <hr>
+
+          <div class="form-horizontal col-md-12">
+            <div id="software1" class="form-group">
+              <label class="col-sm-3" style="padding-top: 10px;">Software (1)</label>
+              <div class="col-sm-9">
+                <select class="form-control"></select>
+              </div>
+            </div>
+
+            <div id="run1" class="form-group">
+              <label class="col-sm-3" style="padding-top: 10px;">Run (1)</label>
+              <div class="col-sm-9">
+                <select class="form-control"></select>
+              </div>
+            </div>
+
+            <div id="software2" class="form-group">
+              <label class="col-sm-3" style="padding-top: 10px;">Software (2)</label>
+              <div class="col-sm-9">
+                <select class="form-control"></select>
+              </div>
+            </div>
+
+            <div id="run2" class="form-group">
+              <label class="col-sm-3" style="padding-top: 10px;">Run (2)</label>
+              <div class="col-sm-9">
+                <select class="form-control"></select>
+              </div>
+            </div>
+
+            <button id="compare" class="btn btn-default" type="submit">Compare</button>
+          </div>
+        </div>
+
+        <div class="col-md-12">
+          <hr>
+        </div>
+        <div id="chart" class="col-md-12" style="padding:0"></div>
+
+      </div>
+    </div>
+
+    <script type="text/javascript">
+    var config = {
+          influxHost: "{{ site.influxHost }}",
+          influxPort: "{{ site.influxPort }}",
+          influxDB: "{{ site.influxDB }}",
+          influxUser: "{{ site.influxUser }}",
+          influxPwd: "{{ site.influxPwd }}"
+        }
+    </script>
+    <script type="text/javascript" src="{{ "/js/jquery-1.11.3.min.js" | prepend: site.baseurl }}"></script>
+    <script type="text/javascript" src="{{ "/js/d3.min.js" | prepend: site.baseurl }}"></script>
+    <script type="text/javascript" src="{{ "/js/cubism.v1.js" | prepend: site.baseurl }}"></script>
+    <script type="text/javascript" src="{{ "/js/compare.js" | prepend: site.baseurl }}"></script>
+
+  </body>
+
+</html>
