@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Compare</title>
+    <meta name="author" content="Maxime Colmant">
+    <meta name="description" content="Studying the software energy distribution over methods
+">
+
+    <link rel="stylesheet" href="/codEnergy/css/style.css">
+    <link rel="stylesheet" href="/codEnergy/css/pygments.css">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+      <![endif]-->
+  </head>
+
+
+  <style type="text/css">
+
+  svg {
+    font: 10px sans-serif;
+  }
+
+
+  .axis {
+    font: 10px sans-serif;
+  }
+
+  .axis text {
+    -webkit-transition: fill-opacity 250ms linear;
+  }
+
+  .axis path {
+    display: none;
+  }
+
+  .axis line {
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+
+  .horizon {
+    border-bottom: solid 1px #000;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .horizon {
+    border-top: solid 1px #000;
+    border-bottom: solid 1px #000;
+  }
+
+  .horizon + .horizon {
+    border-top: none;
+  }
+
+  .horizon canvas {
+    display: block;
+  }
+
+  .horizon .title,
+  .horizon .value {
+    color: black;
+    font-weight: bold;
+    bottom: 0;
+    line-height: 30px;
+    margin: 0 6px;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  .horizon .title {
+    left: 0;
+  }
+
+  .horizon .value {
+    right: 0;
+  }
+
+  .line {
+    background: #000;
+    opacity: .2;
+    z-index: 2;
+  }
+  </style>
+
+  <body>
+
+    
+
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/codEnergy/">codEnergy</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="navbar">
+          <ul class="nav navbar-nav">
+            <li ><a href="/codEnergy/charts">Charts</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+
+        <div id="info" class="col-md-6">
+          <h3>Energy comparison</h3>
+
+          <hr>
+
+          <div class="form-horizontal col-md-12">
+            <div id="software1" class="form-group">
+              <label class="col-sm-3" style="padding-top: 10px;">Software (1)</label>
+              <div class="col-sm-9">
+                <select class="form-control"></select>
+              </div>
+            </div>
+
+            <div id="run1" class="form-group">
+              <label class="col-sm-3" style="padding-top: 10px;">Run (1)</label>
+              <div class="col-sm-9">
+                <select class="form-control"></select>
+              </div>
+            </div>
+
+            <div id="software2" class="form-group">
+              <label class="col-sm-3" style="padding-top: 10px;">Software (2)</label>
+              <div class="col-sm-9">
+                <select class="form-control"></select>
+              </div>
+            </div>
+
+            <div id="run2" class="form-group">
+              <label class="col-sm-3" style="padding-top: 10px;">Run (2)</label>
+              <div class="col-sm-9">
+                <select class="form-control"></select>
+              </div>
+            </div>
+
+            <button id="compare" class="btn btn-default" type="submit">Compare</button>
+          </div>
+        </div>
+
+        <div class="col-md-12">
+          <hr>
+        </div>
+        <div id="chart" class="col-md-12" style="padding:0"></div>
+
+      </div>
+    </div>
+
+    <script type="text/javascript">
+    var config = {
+          influxHost: "spirals-codenergy.lille.inria.fr",
+          influxPort: "8086",
+          influxDB: "codenergy",
+          influxUser: "web",
+          influxPwd: "web"
+        }
+    </script>
+    <script type="text/javascript" src="/codEnergy/js/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="/codEnergy/js/d3.min.js"></script>
+    <script type="text/javascript" src="/codEnergy/js/cubism.v1.js"></script>
+    <script type="text/javascript" src="/codEnergy/js/compare.js"></script>
+
+  </body>
+
+</html>
