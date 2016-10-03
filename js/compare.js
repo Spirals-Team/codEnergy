@@ -176,7 +176,7 @@ function compare() {
             b = b.concat(Array(a.length - b.length).fill(0));
         var name = "" + method;
         if (software1Data.has(method) && software2Data.has(method)) {
-            name = name + " (2 - 1)";
+            name = name + " (1 - 2)";
         }
         else if (!software1Data.has(method)) {
             name = name + " (2)";
@@ -186,11 +186,11 @@ function compare() {
         }
         var metric4a = context.metric(function (start, stop, step, callback) {
             callback(null, values = a.slice(-context.size()));
-        }, '');
+        }, name);
         var metric4b = context.metric(function (start, stop, step, callback) {
             callback(null, values = b.slice(-context.size()));
-        }, name);
-        return metric4b.subtract(metric4a);
+        }, '');
+        return metric4a.subtract(metric4b);
     }
     var context = cubism.context()
         .step(10)
@@ -204,7 +204,7 @@ function compare() {
             .data(allMethods.map(data2Metric))
             .enter().append("div")
             .attr("class", "horizon")
-            .call(context.horizon().format(d3.format("+.2f")));
+            .call(context.horizon().colors(['#cb181d', '#fb6a4a', '#fcae91', '#fee5d9', '#bae4b3', '#74c476', '#31a354', '#006d2c']).format(function (d) { return d3.format("+.2f")(d) + 'W'; }));
         div.append("div")
             .attr("class", "rule")
             .call(context.rule());
